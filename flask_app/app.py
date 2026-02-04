@@ -4,6 +4,7 @@ import json
 import os
 import threading
 import csv
+import time
 from datetime import timedelta
 from pymongo import MongoClient
 from dotenv import load_dotenv
@@ -23,7 +24,8 @@ if not MONGO_URI:
     client = None
     db = None
 else:
-    client = MongoClient(MONGO_URI)
+    # Add a timeout so it doesn't hang indefinitely if the connection is bad
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
     db = client['library_system']
 
 # ===== PATH FIX (VERY IMPORTANT) =====
@@ -194,8 +196,12 @@ def start_backend():
 
     if BACKEND_PROCESS is None:
         # Rehydrate data from MongoDB on startup
-        initial_migration()
-        rehydrate_from_mongodb()
+        try:
+            initial_migration()
+            rehydrate_from_mongodb()
+        except Exception as e:
+            print(f"FAILED TO REHYDRATE: {e}")
+            USE_MOCK_BACKEND = True
 
         # Run backend with CWD set to project root so it can find files relative to it
         cwd_path = os.path.abspath(os.path.join(BASE_DIR, '..'))
