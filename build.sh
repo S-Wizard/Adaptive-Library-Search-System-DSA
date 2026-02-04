@@ -5,8 +5,9 @@ set -e
 
 echo "--- Compiling C++ Backend for Linux ---"
 
-# Create output directory for Vercel (even if we don't serve static files from here)
-mkdir -p dist
+# Create output directory for Vercel (satisfies the 'public' folder requirement)
+mkdir -p public
+echo "Build complete" > public/_keep
 
 # Compile the backend
 # Vercel environment usually has g++ available
