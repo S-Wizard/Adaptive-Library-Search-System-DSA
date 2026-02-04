@@ -1,0 +1,374 @@
+ISBN,Title,Author,Category,Copies
+978-0-13-110362-7,The C++ Programming Language,Bjarne Stroustrup,Programming,3
+978-0-201-61622-4,The Design Patterns,Gang of Four,Software Engineering,2
+978-0-134-49418-8,Effective Java,Joshua Bloch,Programming,3
+978-0-135-39415-0,Clean Code,Robert C. Martin,Software Engineering,3
+978-0-13-235088-0,Introduction to Algorithms,Thomas H. Cormen,Computer Science,4
+978-0-596-00712-6,JavaScript: The Good Parts,Douglas Crockford,Web Development,2
+978-0-07-062046-3,Code Complete,Steve McConnell,Software Engineering,2
+978-0-262-03384-8,Structure and Interpretation of Computer Programs,Harold Abelson,Computer Science,2
+978-0-321-12742-4,Extreme Programming Explained,Kent Beck,Agile Methodology,2
+978-0-596-00767-6,Head First Design Patterns,Freeman & Freeman,Software Engineering,3
+978-1-491-95179-2,Python Data Science Handbook,Jake VanderPlas,Data Science,3
+978-0-470-44415-6,Introduction to Java Programming,Y. Daniel Liang,Programming,2
+978-1-491-95023-8,Building Machine Learning Systems,Willi Richert,Machine Learning,2
+978-0-13-468599-1,Microservices Patterns,Chris Richardson,Software Architecture,2
+978-0-13-815806-3,The Pragmatic Programmer,David Thomas,Software Engineering,3
+978-0-596-10012-1,RESTful Web Services,Leonard Richardson,Web Development,2
+978-0-262-27469-2,Introduction to Algorithms Second Edition,Thomas Cormen,Computer Science,3
+978-1-449-35818-8,Learning Python,Mark Lutz,Programming,2
+978-0-13-385472-7,Head First Java,Kathy Sierra,Programming,2
+978-0-07-137967-1,The Mythical Man-Month,Frederick Brooks,Software Engineering,2
+978-0-321-94815-3,Continuous Integration,Paul Duvall,DevOps,2
+978-1-449-39284-0,Scala for the Impatient,Cay Horstmann,Programming,2
+978-0-596-00791-1,Programming Pearls,Jon Bentley,Programming,2
+978-1-492-03950-7,Site Reliability Engineering,Betsy Beyer,DevOps,2
+978-0-13-110362-7,Modern C++ Design,Andrei Alexandrescu,Programming,2
+978-0-596-00810-9,The Mythical Man-Month Extended,Frederick Brooks Jr,Software Engineering,2
+978-0-321-94815-2,Gang of Four Design Patterns,Gang of Four,Software Engineering,2
+978-1-491-95179-1,Deep Learning with Python,Francois Chollet,Machine Learning,3
+978-0-596-00768-3,Head First Object-Oriented Analysis and Design,Gary Pollice,Software Engineering,2
+978-0-596-10012-2,SOAP Web Services,Leonard Richardson,Web Development,2
+978-0-13-468599-0,Domain-Driven Design,Eric Evans,Software Architecture,3
+978-0-321-12742-3,Refactoring,Martin Fowler,Software Engineering,2
+978-0-134-49417-1,Effective Python,Brett Slatkin,Programming,2
+978-0-596-00767-5,Design Patterns Explained,Alan Shalloway,Software Engineering,2
+978-0-596-00712-5,JavaScript Design Patterns,Addy Osmani,Web Development,2
+978-0-596-00790-2,Algorithms on Strings Trees and Sequences,Dan Gusfield,Computer Science,2
+978-0-07-062046-2,Object-Oriented Software Construction,Bertrand Meyer,Software Engineering,2
+978-0-470-44415-5,Java Concurrency in Practice,Brian Goetz,Programming,2
+978-1-449-39284-1,Functional Programming in Scala,Paul Chiusano,Programming,2
+978-0-596-00810-8,Applied Software Engineering,Andrew Hunt,Software Engineering,2
+978-0-321-94815-1,Building Microservices,Sam Newman,Software Architecture,3
+978-0-596-00768-2,Enterprise Integration Patterns,Gregor Hohpe,Software Architecture,2
+978-1-491-95023-7,Neural Networks and Deep Learning,Michael Nielsen,Machine Learning,2
+978-0-596-00791-0,Algorithm Design Manual,Steven Skiena,Computer Science,2
+978-0-13-385472-6,The Art of Computer Programming Vol 1,Donald Knuth,Computer Science,2
+978-0-596-00812-0,Release It!,Michael Nygard,DevOps,2
+978-0-596-00810-7,The Essence of Software Engineering,Ivar Jacobson,Software Engineering,2
+978-1-449-39285-8,Programming in Go,John Donovan,Programming,2
+978-0-596-00768-1,Apache Kafka The Definitive Guide,Neha Narkhede,Big Data,2
+978-0-596-00791-2,The Art of Computer Programming Vol 2,Donald Knuth,Computer Science,2
+978-0-596-00810-6,Test Driven Development,Kent Beck,Agile Methodology,2
+978-0-13-468599-2,Building Evolutionary Architectures,Neal Ford,Software Architecture,2
+978-1-491-95024-5,Practical Natural Language Processing,Sowmya Vajjala,Machine Learning,2
+978-0-596-00767-4,Understanding the Linux Kernel,Daniel Bovet,Operating Systems,2
+978-0-596-00790-1,The Definitive ANTLR 4 Reference,Terence Parr,Programming,2
+978-0-596-00812-1,Securing DevOps,Julien Vehent,DevOps,2
+978-0-321-12742-2,Patterns of Enterprise Application Architecture,Martin Fowler,Software Architecture,2
+978-1-449-39284-2,Rust Programming Language,Steve Klabnik,Programming,2
+978-0-596-00768-0,Designing Distributed Systems,Brendan Burns,Cloud Computing,2
+978-0-596-00791-3,The Art of Computer Programming Vol 3,Donald Knuth,Computer Science,2
+978-0-596-00810-5,User Stories Applied,Mike Cohn,Agile Methodology,2
+978-0-13-385472-5,The Pragmatic Programmer Your Journey to Mastery,David Thomas,Software Engineering,3
+978-1-491-95025-2,Machine Learning in Action,Peter Harrington,Machine Learning,2
+978-0-596-00767-3,Operating Systems Three Easy Pieces,Remzi Arpaci-Dusseau,Operating Systems,2
+978-0-596-00790-0,Programming Language Pragmatics,Michael Scott,Programming,2
+978-0-596-00812-2,Infrastructure as Code,Kief Morris,DevOps,2
+978-0-321-12742-1,Enterprise Patterns and MDA,Jim Arlow,Software Architecture,2
+978-1-449-39284-3,The Go Programming Language,Alan Donovan,Programming,2
+978-0-596-00768-4,Docker in Action,Jeff Nickoloff,Cloud Computing,2
+978-0-596-00791-4,Concrete Mathematics,Ronald Graham,Mathematics,2
+978-0-596-00810-4,Agile Testing,Lisa Crispin,Agile Methodology,2
+978-0-13-385472-4,The Clean Coder,Robert C. Martin,Software Engineering,2
+978-1-491-95026-9,Hands-on Machine Learning,Aurélien Géron,Machine Learning,3
+978-0-596-00767-2,Computer Systems Programmer Perspective,Randal Bryant,Computer Science,2
+978-0-596-00790-3,Programming Language Design and Implementation,Terrence Parr,Programming,2
+978-0-596-00812-3,The Phoenix Project,Gene Kim,DevOps,2
+978-0-321-12742-0,Analysis Patterns,Martin Fowler,Software Architecture,2
+978-1-449-39284-4,Python for Data Analysis,Wes McKinney,Data Science,3
+978-0-596-00768-5,Kubernetes in Action,Marko Luksa,Cloud Computing,2
+978-0-596-00791-5,Introduction to the Theory of Computation,Michael Sipser,Computer Science,2
+978-0-596-00810-3,Feature Driven Development,Jeff De Luca,Agile Methodology,2
+978-0-13-385472-3,The Software Craftsman,Sandro Mancuso,Software Engineering,2
+978-1-491-95027-6,Advanced Machine Learning with TensorFlow,Aurélien Géron,Machine Learning,2
+978-0-596-00767-1,Computer Networking Top-Down Approach,James Kurose,Networking,2
+978-0-596-00790-4,Language Implementation Patterns,Terence Parr,Programming,2
+978-0-596-00812-4,Continuous Delivery,David Farley,DevOps,3
+978-0-321-12741-3,Web Services Patterns,Andrew Dutton,Web Development,2
+978-1-449-39284-5,NumPy Cookbook,Ivan Idris,Data Science,2
+978-0-596-00768-6,The Kubernetes Book,Nigel Poulton,Cloud Computing,2
+978-0-596-00791-6,Algorithms in C,Robert Sedgewick,Programming,2
+978-0-596-00810-2,Scrum The Art of Doing Twice the Work,Jeff Sutherland,Agile Methodology,2
+978-0-13-385472-2,A Philosophy of Software Design,John Ousterhout,Software Engineering,2
+978-1-491-95028-3,Computer Vision Algorithms,Richard Szeliski,Machine Learning,2
+978-0-596-00767-0,Data Communication Networking,Behrouz Forouzan,Networking,2
+978-0-596-00790-5,Dynamic Language Patterns,Terence Parr,Programming,2
+978-0-596-00812-5,The DevOps Handbook,Gene Kim,DevOps,3
+978-0-321-12741-2,Web Services A Manager's Guide,Andrew Dutton,Web Development,2
+978-1-449-39284-6,Pandas Cookbook,Theodore Petrou,Data Science,2
+978-0-596-00768-7,Learning Kubernetes,Priya Seth,Cloud Computing,2
+978-0-596-00791-7,Algorithms in Java,Robert Sedgewick,Programming,2
+978-0-596-00810-1,Large Scale Scrum,Craig Larman,Agile Methodology,2
+978-0-13-385472-1,The Software Developer's Journey,John Sonmez,Software Engineering,2
+978-1-491-95029-0,TensorFlow Machine Learning Cookbook,Nick McClure,Machine Learning,2
+978-0-596-00767-9,Internet Architecture and Protocols,Jean Walrand,Networking,2
+978-0-596-00790-6,Pattern Matching in Prolog,Ivan Bratko,Programming,2
+978-0-596-00812-6,Automating DevOps with Jenkins Kubernetes and Terraform,Peacock Prabhakar,DevOps,2
+978-0-321-12741-1,Web Services Design and Development,Andrew Dutton,Web Development,2
+978-1-449-39284-7,Data Analysis with Pandas,Wes McKinney,Data Science,2
+978-0-596-00768-8,Kubernetes Best Practices,Brendan Burns,Cloud Computing,2
+978-0-596-00791-8,Algorithms Unlocked,Thomas Cormen,Computer Science,2
+978-0-596-00810-0,Kanban and Scrum,Henrik Kniberg,Agile Methodology,2
+978-0-13-385472-0,The Effective Engineer,Edmond Lau,Software Engineering,2
+978-1-491-95030-6,Deep Learning Cookbook,Douwe Osinga,Machine Learning,2
+978-0-596-00767-8,Network Protocols Handbook,Igor Kotlyar,Networking,2
+978-0-596-00790-7,Constraint Logic Programming,Thom Fruehwirth,Programming,2
+978-0-596-00812-7,Site Reliability Workbook,Betsy Beyer,DevOps,2
+978-0-321-12741-0,Building Web Services with Spring,Craig Walls,Web Development,2
+978-1-449-39284-8,Machine Learning with Python,Andreas Muller,Machine Learning,3
+978-0-596-00768-9,Kubernetes Network Policy,Andrew Martin,Cloud Computing,2
+978-0-596-00791-9,Algorithms for Interviews,Adnan Aziz,Computer Science,2
+978-0-596-00809-4,SAFe 4.0 Reference Guide,Dean Leffingwell,Agile Methodology,2
+978-0-13-385471-3,Building Secure and Reliable Systems,Heather Adkins,Software Engineering,2
+978-1-491-95031-3,Mastering Machine Learning with scikit-learn,Gavin Hackeling,Machine Learning,2
+978-0-596-00767-7,Networking Protocols Handbook,Igor Kotlyar,Networking,2
+978-0-596-00790-8,Functional Programming Patterns,Scott Wlaschin,Programming,2
+978-0-596-00812-8,GitOps and Kubernetes,Stevie Arena,DevOps,2
+978-0-321-12740-3,RESTful Java Web Services,Leonard Richardson,Web Development,2
+978-1-449-39284-9,Machine Learning with Apache Spark,Bill Chambers,Machine Learning,2
+978-0-596-00769-1,Advanced Kubernetes,Deepak Prasad,Cloud Computing,2
+978-0-596-00791-0,Algorithms in C++,Robert Sedgewick,Programming,2
+978-0-596-00809-3,The Agile Mind,Jean Tabaka,Agile Methodology,2
+978-0-13-385471-2,Software Engineering at Google,Titus Winters,Software Engineering,2
+978-1-491-95032-0,Machine Learning Operations,Andriy Burkov,Machine Learning,2
+978-0-596-00767-6,TCP/IP Protocol Suite,Behrouz Forouzan,Networking,2
+978-0-596-00790-9,Programming Language Concepts,Carlos Varela,Programming,2
+978-0-596-00812-9,The Toyota Way to DevOps,Gary Perez,DevOps,2
+978-0-321-12740-2,Building Web Services with XML,Steve Muench,Web Development,2
+978-1-449-39285-0,Introduction to Machine Learning,Ethem Alpaydin,Machine Learning,2
+978-0-596-00769-2,Kubernetes Operators,Jason Dobies,Cloud Computing,2
+978-0-596-00791-1,Algorithms in Perl,Damian Conway,Programming,2
+978-0-596-00809-2,Organizational Patterns of Agile Software,James Coplien,Agile Methodology,2
+978-0-13-385471-1,Building Real-Time Applications with WebSockets,Valentin Shergin,Software Engineering,2
+978-1-491-95033-7,Feature Engineering for Machine Learning,Alice Zheng,Machine Learning,2
+978-0-596-00767-5,Advanced TCP/IP Design,Mohamed Mahmoud,Networking,2
+978-0-596-00791-8,Parallel Algorithms,Guy E. Blelloch,Programming,2
+978-0-596-00812-0,Effective DevOps,Jennifer Davis,DevOps,2
+978-0-321-12740-1,Advanced Web Services,Steve Muench,Web Development,2
+978-1-449-39285-1,Statistical Learning with Sparsity,Trevor Hastie,Machine Learning,2
+978-0-596-00769-3,Kubernetes Security,Liz Rice,Cloud Computing,2
+978-0-596-00791-2,Algorithms Illuminated Part 1,Tim Roughgarden,Computer Science,2
+978-0-596-00809-1,Agile Retrospectives,Diana Larsen,Agile Methodology,2
+978-0-13-385471-0,Microservices Architecture,Simon Newman,Software Architecture,2
+978-1-491-95034-4,Fairness and Machine Learning,Barocas Hardt,Machine Learning,2
+978-0-596-00767-4,Internet Routing Architectures,Sam Halabi,Networking,2
+978-0-596-00791-3,Algorithms Illuminated Part 2,Tim Roughgarden,Computer Science,2
+978-0-596-00812-1,Scaling Kubernetes,Dimitri Monsch,DevOps,2
+978-0-321-12740-0,Enterprise Web Services,Steve Muench,Web Development,2
+978-1-449-39285-2,Probabilistic Programming,Jan-Willem van de Meent,Machine Learning,2
+978-0-596-00769-4,Container Security,Liz Rice,Cloud Computing,2
+978-0-596-00791-4,Algorithms Illuminated Part 3,Tim Roughgarden,Computer Science,2
+978-0-596-00809-0,Coaching Agile Teams,Lyssa Adkins,Agile Methodology,2
+978-0-13-385470-3,Event-Driven Microservices,Adam Bellemare,Software Architecture,2
+978-1-491-95035-1,Interpretable Machine Learning,Christoph Molnar,Machine Learning,2
+978-0-596-00767-3,Cisco Network Design,Priscilla Oppenheimer,Networking,2
+978-0-596-00791-5,Algorithms in Go,Bhargav Srinivasan,Programming,2
+978-0-596-00812-2,Kubernetes at Scale,William Denniss,DevOps,2
+978-0-321-12739-4,Web Service Implementation and Composition,Pethuru Raj,Web Development,2
+978-1-449-39285-3,Causal Inference and Discovery,Peter Spirtes,Machine Learning,2
+978-0-596-00769-5,Kubernetes Cookbook,Sébastien Goasguen,Cloud Computing,2
+978-0-596-00791-6,Algorithms for Modern Hardware,Sergei Gorlatch,Computer Science,2
+978-0-596-00809-9,Agile Testing The Practical Guide,Crispin Gregorie,Agile Methodology,2
+978-0-13-385470-2,Building Event-Driven Microservices,Adam Bellemare,Software Architecture,2
+978-1-491-95036-8,Causal Inference Theory and Applications,Janet Klingner,Machine Learning,2
+978-0-596-00767-2,Network Virtualization,Priscilla Oppenheimer,Networking,2
+978-0-596-00791-7,Algorithms and Cryptography,Christof Paar,Computer Science,2
+978-0-596-00812-3,Kubernetes Networking,Nigel Poulton,DevOps,2
+978-0-321-12739-3,Enterprise Services Architecture,Tilak Shenoy,Web Development,2
+978-1-449-39285-4,Causal Inference with Machine Learning,Trent Kyono,Machine Learning,2
+978-0-596-00769-6,DevOps with Kubernetes,Miguel Dominguez,Cloud Computing,2
+978-0-596-00791-8,Cryptography and Network Security,William Stallings,Networking,2
+978-0-596-00809-8,The Art of Agile Development,James Shore,Agile Methodology,3
+978-0-13-385470-1,Serverless Architectures,Gojko Adzic,Software Architecture,2
+978-1-491-95037-5,Causal Inference Foundations,Judea Pearl,Machine Learning,2
+978-0-596-00767-1,Networking All-in-One For Dummies,Lowe Doug,Networking,2
+978-0-596-00791-9,Network Security Essentials,William Stallings,Networking,2
+978-0-596-00812-4,Kubernetes Best Practices Patterns and Principles,Brendan Burns,DevOps,3
+978-0-321-12739-2,Web Services Governance,Jason Bloomberg,Web Development,2
+978-1-449-39285-5,Causal Inference in Python,Matheus Facure,Machine Learning,2
+978-0-596-00769-7,Kubernetes Native Development,Giles Sirett,Cloud Computing,2
+978-0-596-00791-0,Firewalls Don't Stop Dragons,Chuvakin Anton,Cybersecurity,2
+978-0-596-00809-7,Lean Software Development,Mary Tom Poppendieck,Agile Methodology,2
+978-0-13-385470-0,Designing Cloud Infrastructure,Justin Warren,Software Architecture,2
+978-1-491-95038-2,Domain Adaptation in Machine Learning,Biswa Pratim Banerjee,Machine Learning,2
+978-0-596-00767-0,Network Administrator Street Smarts,Thorn Michael,Networking,2
+978-0-596-00792-6,Information Security Foundations,Roberta Bragg,Cybersecurity,2
+978-0-596-00812-5,Kubernetes for Operators,Henrik Wrist,DevOps,2
+978-0-321-12739-1,Web Services Security,IBM Team,Web Development,2
+978-1-449-39285-6,Transfer Learning in Machine Learning,Wenhao Jiang,Machine Learning,2
+978-0-596-00769-8,Production Kubernetes,Josh Rosso,Cloud Computing,2
+978-0-596-00792-7,Computer Security and Intrusion Detection,Robert Mitchell,Cybersecurity,2
+978-0-596-00809-6,Emergent Design,Scott Bain,Agile Methodology,2
+978-0-13-385469-4,Infrastructure and Software Quality,Jack Ganssle,Software Architecture,2
+978-1-491-95039-9,Meta-Learning in Machine Learning,Chelsea Finn,Machine Learning,2
+978-0-596-00767-9,Practical Network Design Techniques,Priscilla Oppenheimer,Networking,2
+978-0-596-00792-8,Network Security Assessment,Waltermire Richard,Cybersecurity,2
+978-0-596-00812-6,Kubernetes Security Best Practices,Alexandre Gessner,DevOps,2
+978-0-321-12739-0,Enterprise Services Bus,John Strachan,Web Development,2
+978-1-449-39285-7,Zero-shot Learning in Machine Learning,Li Fei Fei,Machine Learning,2
+978-0-596-00769-9,Kubernetes in Production,Boris Scholl,Cloud Computing,2
+978-0-596-00792-9,Cloud Security and Privacy,Joanna Kulesza,Cybersecurity,2
+978-0-596-00809-5,The Lean Enterprise,Poppendieck Mary,Agile Methodology,2
+978-0-13-385469-3,Web Service Implementation and Development,Raj Pethuru,Web Development,2
+978-1-491-95040-5,Continual Learning in Machine Learning,German Ros,Machine Learning,2
+978-0-596-00768-2,Network Engineering Design,Russ White,Networking,2
+978-0-596-00792-0,Applied Network Security Monitoring,Bejtlich Richard,Cybersecurity,2
+978-0-596-00812-7,Kubernetes Application Developer Exam,Dmitri Dounaev,DevOps,2
+978-0-321-12738-3,Service Oriented Architecture Analysis and Design,Raj Pethuru,Web Development,2
+978-1-449-39285-8,Few-shot Learning in Machine Learning,Michael Zhang,Machine Learning,2
+978-0-596-00770-5,Kubernetes for Beginners,Ahmed Aziz,Cloud Computing,2
+978-0-596-00792-1,Ransomware Protection and Containment,Raj Samani,Cybersecurity,2
+978-0-596-00809-4,XP Extreme Programming Explained,Kent Beck,Agile Methodology,3
+978-0-13-385469-2,Service-Oriented Architecture Field Guide,Thomas Erl,Web Development,2
+978-1-491-95041-2,Multi-task Learning in Machine Learning,Yuanyuan Zhao,Machine Learning,2
+978-0-596-00768-1,Data Center Design and Operations,Md Amin Islam,Networking,2
+978-0-596-00792-2,Zero Trust Networks,Gilman Evan,Cybersecurity,2
+978-0-596-00812-8,Kubernetes Administrator Exam,Dmitri Dounaev,DevOps,2
+978-0-321-12738-2,Effective SOA,Dirk Krafzig,Web Development,2
+978-1-449-39285-9,Reinforcement Learning in Machine Learning,Michael Zhang,Machine Learning,2
+978-0-596-00770-6,Kubernetes Patterns,Bilgin Ibrahimov,Cloud Computing,2
+978-0-596-00792-3,Cybersecurity Frameworks,David Shackleford,Cybersecurity,2
+978-0-596-00809-3,Agile Configuration Management,Bob Aiello,Agile Methodology,2
+978-0-13-385469-1,Practical Service-Oriented Architecture,Michael Hafner,Web Development,2
+978-1-491-95042-9,Federated Learning in Machine Learning,Yann LeCun,Machine Learning,2
+978-0-596-00768-0,High-Speed Networking,Raj Jain,Networking,2
+978-0-596-00792-4,Penetration Testing and Ethical Hacking,Siddharth Anand,Cybersecurity,2
+978-0-596-00812-9,Kubernetes Hardening Guide,Aqua Security,DevOps,2
+978-0-321-12738-1,The Web Services Landscape,Wee Gimpel,Web Development,2
+978-1-449-39286-0,Graph Neural Networks in Machine Learning,Kaiming He,Machine Learning,2
+978-0-596-00770-7,Kubernetes Architecture,John Arundel,Cloud Computing,2
+978-0-596-00792-5,Identity and Access Management,M. Harold,Cybersecurity,2
+978-0-596-00809-2,Lean Testing,Jason Orriss,Agile Methodology,2
+978-0-13-385469-0,Building Next Generation Web Services,Budi Kurniawan,Web Development,2
+978-1-491-95043-6,Attention Mechanisms in Machine Learning,Ashish Vaswani,Machine Learning,2
+978-0-596-00770-8,Kubernetes Interview Questions,Dmitri Dounaev,Cloud Computing,2
+978-0-596-00792-6,Practical Cloud Security,Omar Santos,Cybersecurity,2
+978-0-596-00812-0,Kubernetes Multi-Cluster Solutions,Apptio Cloudability,DevOps,2
+978-0-321-12738-0,Web Services and Dynamic Business Adaptation,Wee Gimpel,Web Development,2
+978-1-449-39286-1,Transformer Architectures,Aidan Gomez,Machine Learning,2
+978-0-596-00770-9,Kubernetes on Docker,Deepak Prasad,Cloud Computing,2
+978-0-596-00792-7,Cloud Security and Resilience,Sara Crouse,Cybersecurity,2
+978-0-596-00809-1,Agile for Embedded Systems,Andrew Stellman,Agile Methodology,2
+978-0-13-385468-3,Web Services Architecture,James McGovern,Web Development,2
+978-1-491-95044-3,Vision Transformers in Machine Learning,Alexey Dosovitskiy,Machine Learning,2
+978-0-596-00770-0,Kubernetes Dashboard Guide,Sankarshan Mukhopadhyay,Cloud Computing,2
+978-0-596-00792-8,Practical Kubernetes Security,Liz Rice,Cybersecurity,2
+978-0-596-00812-1,Kubernetes Pod Security,Brad Geesaman,DevOps,2
+978-0-321-12737-3,Web Application Architecture,Mark Collins-Cope,Web Development,2
+978-1-449-39286-2,BERT Transformers in NLP,Jacob Devlin,Machine Learning,2
+978-0-596-00770-1,Kubernetes StatefulSets,Sankarshan Mukhopadhyay,Cloud Computing,2
+978-0-596-00792-9,Kubernetes Security,Liz Rice,Cybersecurity,3
+978-0-596-00809-0,Agile for Distributed Teams,Alistair Cockburn,Agile Methodology,2
+978-0-13-385468-2,SOA Design Patterns,Thomas Erl,Web Development,2
+978-1-491-95045-0,Pre-trained Language Models,Yiming Yang,Machine Learning,2
+978-0-596-00770-2,Kubernetes Ingress Controller,Sankarshan Mukhopadhyay,Cloud Computing,2
+978-0-596-00793-5,Application Security Concepts,Sankar Sundararaman,Cybersecurity,2
+978-0-596-00812-2,Kubernetes ConfigMap and Secrets,Brad Geesaman,DevOps,2
+978-0-321-12737-2,Effective REST Services via HTTP,Steve Tilkov,Web Development,2
+978-1-449-39286-3,Language Model Pre-training,Yiming Yang,Machine Learning,2
+978-0-596-00770-3,Kubernetes Helm Package Manager,Sankarshan Mukhopadhyay,Cloud Computing,2
+978-0-596-00793-6,DevSecOps Handbook,Snyk Team,Cybersecurity,2
+978-0-596-00812-3,Kubernetes CI-CD Integration,Brad Geesaman,DevOps,2
+978-0-321-12737-1,The Resource-Oriented Architecture,Stefan Tilkov,Web Development,2
+978-1-449-39286-4,Prompt Engineering for LLMs,Linus Ekenstam,Machine Learning,2
+978-0-596-00770-4,Kubernetes Operators Field Guide,Bryan Kim,Cloud Computing,2
+978-0-596-00793-7,Threat Modeling for Web Applications,Adam Shostack,Cybersecurity,2
+978-0-596-00812-4,Kubernetes Monitoring and Observability,Brad Geesaman,DevOps,2
+978-0-321-12737-0,Building Secure Web Applications,Mark Collins-Cope,Web Development,2
+978-1-449-39286-5,Large Language Model Fine-tuning,Younes Bensouda,Machine Learning,2
+978-0-596-00770-5,Kubernetes Node Management,Sankarshan Mukhopadhyay,Cloud Computing,2
+978-0-596-00793-8,Web Application Security,Mark Collins-Cope,Cybersecurity,2
+978-0-596-00812-5,Kubernetes Network Policies Explained,Brad Geesaman,DevOps,2
+978-0-321-12736-3,Web Service Composition and Choreography,Wee Gimpel,Web Development,2
+978-1-449-39286-6,Retrieval Augmented Generation,Llama Index Team,Machine Learning,2
+978-0-596-00770-6,Kubernetes API Server Deep Dive,Bryan Kim,Cloud Computing,2
+978-0-596-00793-9,API Security Best Practices,Omar Santos,Cybersecurity,2
+978-0-596-00812-6,Kubernetes Cluster Upgrade Guide,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12736-2,WS-Addressing and WS-Policy,Wee Gimpel,Web Development,2
+978-1-449-39286-7,Agents and Reasoning in LLMs,Andrew Ng,Machine Learning,2
+978-0-596-00770-7,Kubernetes Control Plane Architecture,Bryan Kim,Cloud Computing,2
+978-0-596-00793-0,Secure SDLC Practices,Gary McGraw,Cybersecurity,2
+978-0-596-00812-7,Kubernetes Disaster Recovery,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12736-1,WS-Security Implementation,Wee Gimpel,Web Development,2
+978-1-449-39286-8,Autonomous Agents with AI,Andrej Karpathy,Machine Learning,2
+978-0-596-00770-8,Kubernetes etcd Database,Bryan Kim,Cloud Computing,2
+978-0-596-00793-1,Cloud Compliance and Auditing,Carol Dekkers,Cybersecurity,2
+978-0-596-00812-8,Kubernetes Backup and Recovery,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12736-0,Advanced Web Services Topics,Wee Gimpel,Web Development,2
+978-1-449-39286-9,Foundation Models and Transfer Learning,Sergei Gorlatch,Machine Learning,2
+978-0-596-00770-9,Kubernetes Pod Networking,Bryan Kim,Cloud Computing,2
+978-0-596-00793-2,API Pentesting Techniques,Harsh Bothra,Cybersecurity,2
+978-0-596-00812-9,Kubernetes Resource Quotas,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12735-3,Building Scalable Web Services,Mark Collins-Cope,Web Development,2
+978-1-449-39287-0,Causal Language Models,Yiming Yang,Machine Learning,2
+978-0-596-00771-6,Kubernetes Service Mesh Integration,Bryan Kim,Cloud Computing,2
+978-0-596-00793-3,Mobile App Security Testing,Mobiso Team,Cybersecurity,2
+978-0-596-00813-6,Kubernetes Storage Solutions,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12735-2,High-Performance Web Services,Mark Collins-Cope,Web Development,2
+978-1-449-39287-1,Sequence-to-Sequence Models,Ilya Sutskever,Machine Learning,2
+978-0-596-00771-7,Kubernetes Load Balancing,Bryan Kim,Cloud Computing,2
+978-0-596-00793-4,Container Security Best Practices,Liz Rice,Cybersecurity,2
+978-0-596-00813-7,Kubernetes Volume Management,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12735-1,Reliable Web Services,Mark Collins-Cope,Web Development,2
+978-1-449-39287-2,Attention is All You Need,Vaswani et al,Machine Learning,2
+978-0-596-00771-8,Kubernetes Service Discovery,Bryan Kim,Cloud Computing,2
+978-0-596-00793-5,Kubernetes Pod Security Policies,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-8,Kubernetes Vertical Pod Autoscaling,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12735-0,RESTful Web Service Design,Mark Collins-Cope,Web Development,2
+978-1-449-39287-3,AlexNet and Deep Learning Origins,Geoffrey Hinton,Machine Learning,2
+978-0-596-00771-9,Kubernetes Horizontal Pod Autoscaler,Bryan Kim,Cloud Computing,2
+978-0-596-00793-6,Kubernetes Network Policies,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-9,Kubernetes Pod Disruption Budgets,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12734-3,REST Web Services,Mark Collins-Cope,Web Development,2
+978-1-449-39287-4,ResNet and Skip Connections,Kaiming He,Machine Learning,2
+978-0-596-00772-6,Kubernetes API Rate Limiting,Bryan Kim,Cloud Computing,2
+978-0-596-00793-7,Kubernetes RBAC Security,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-0,Kubernetes DaemonSet Patterns,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12734-2,Simple Object Access Protocol,Mark Collins-Cope,Web Development,2
+978-1-449-39287-5,VGG and Inception Networks,Karen Simonyan,Machine Learning,2
+978-0-596-00772-7,Kubernetes Admission Webhooks,Bryan Kim,Cloud Computing,2
+978-0-596-00793-8,Kubernetes Pod Security Standards,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-1,Kubernetes Garbage Collection,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12734-1,Web Service Business Models,Mark Collins-Cope,Web Development,2
+978-1-449-39287-6,MobileNet Efficient Networks,Andrew G. Howard,Machine Learning,2
+978-0-596-00772-8,Kubernetes Custom Resources,Bryan Kim,Cloud Computing,2
+978-0-596-00793-9,Kubernetes Secrets Encryption,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-2,Kubernetes InitContainer Usage,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12734-0,Web Service Implementation,Mark Collins-Cope,Web Development,2
+978-1-449-39287-7,EfficientNet Scaling,Mingxing Tan,Machine Learning,2
+978-0-596-00772-9,Kubernetes Aggregated APIs,Bryan Kim,Cloud Computing,2
+978-0-596-00793-0,Kubernetes Network Segmentation,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-3,Kubernetes Sidecar Patterns,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12733-3,Web Architecture Patterns,Mark Collins-Cope,Web Development,2
+978-1-449-39287-8,DenseNet Architecture,Gao Huang,Machine Learning,2
+978-0-596-00773-6,Kubernetes Proxy Protocols,Bryan Kim,Cloud Computing,2
+978-0-596-00793-1,Kubernetes Certificate Management,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-4,Kubernetes Job Queue Patterns,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12733-2,Building Modern Web Applications,Mark Collins-Cope,Web Development,2
+978-1-449-39287-9,Squeeze and Excitation Networks,Jie Hu,Machine Learning,2
+978-0-596-00773-7,Kubernetes Leader Election,Bryan Kim,Cloud Computing,2
+978-0-596-00793-2,Kubernetes Service Mesh Security,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-5,Kubernetes Multi-Tenancy Patterns,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12733-1,Scalable Architecture,Mark Collins-Cope,Web Development,2
+978-1-449-39288-0,Vision Transformers ViT,Alexey Dosovitskiy,Machine Learning,2
+978-0-596-00773-8,Kubernetes Observability Patterns,Bryan Kim,Cloud Computing,2
+978-0-596-00793-3,Kubernetes Secret Management,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-6,Kubernetes Multi-Cluster Management,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12733-0,Enterprise Web Applications,Mark Collins-Cope,Web Development,2
+978-1-449-39288-1,Self-Attention Mechanisms,Ashish Vaswani,Machine Learning,2
+978-0-596-00773-9,Kubernetes Event-Driven Patterns,Bryan Kim,Cloud Computing,2
+978-0-596-00793-4,Kubernetes Pod Network Policies,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-7,Kubernetes Cluster Autoscaling,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12732-3,Web Services Essentials,Mark Collins-Cope,Web Development,2
+978-1-449-39288-2,Positional Encoding in Transformers,Zhuang Liu,Machine Learning,2
+978-0-596-00774-6,Kubernetes Custom Metrics,Bryan Kim,Cloud Computing,2
+978-0-596-00793-5,Kubernetes ISTIO Integration,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-8,Kubernetes Federation,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12732-2,Web Technologies Overview,Mark Collins-Cope,Web Development,2
+978-1-449-39288-3,Layer Normalization in Transformers,Jorg Bornschein,Machine Learning,2
+978-0-596-00774-7,Kubernetes Metrics Server,Bryan Kim,Cloud Computing,2
+978-0-596-00793-6,Kubernetes Supply Chain Security,Brad Geesaman,Cybersecurity,2
+978-0-596-00813-9,Kubernetes Kube-proxy Alternatives,Sankarshan Mukhopadhyay,DevOps,2
+978-0-321-12732-1,Web Development Fundamentals,Mark Collins-Cope,Web Development,2
+978-1-449-39288-4,Multi-head Attention Details,Ashish Vaswani,Machine Learning,2

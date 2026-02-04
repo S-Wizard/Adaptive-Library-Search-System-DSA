@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Books</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="dark-mode">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <h1 class="brand-logo">📚 Adaptive Library</h1>
+            </div>
+            <div class="navbar-menu">
+                <a href="/home" class="nav-link">Dashboard</a>
+                <a href="/search" class="nav-link active">Search</a>
+                <a href="/profile" class="nav-link">Profile</a>
+                <button class="nav-link btn-ghost" onclick="undoLastAction()" style="border:none; cursor:pointer;"
+                    title="Undo last action">↺ Undo</button>
+                <div class="user-info">
+                    <span class="user-name">{{ name }}</span>
+                    <span class="user-badge" data-type="{{ user_type }}">{{ user_type.replace('_', ' ').title() if
+                        user_type else 'User' }}</span>
+                </div>
+                <a href="/logout" class="nav-link logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Hero -->
+    <section class="search-hero">
+        <div class="search-hero-content">
+            <h1 class="search-title">Discover Your Next Read</h1>
+            <p class="search-subtitle">Search 1000+ books across all categories</p>
+
+            <div class="search-container">
+                <div class="search-box glassmorphism-card">
+                    <div class="search-input-wrapper">
+                        <input type="text" id="searchInput" class="search-input"
+                            placeholder="Search by title or author..." autocomplete="off">
+                        <span class="search-icon">🔍</span>
+                    </div>
+
+                    <div class="search-filters">
+                        <button class="filter-btn active" data-type="title">
+                            <span class="filter-icon">📖</span> Title
+                        </button>
+                        <button class="filter-btn" data-type="author">
+                            <span class="filter-icon">✍️</span> Author
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search suggestions dropdown -->
+                <div id="suggestionsDropdown" class="suggestions-dropdown">
+                    <div class="suggestions-placeholder">Start typing to see suggestions...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="search-results-section">
+        <div class="results-header">
+            <h2 id="resultsTitle">Search Results</h2>
+            <div class="results-controls">
+                <span id="resultCount" class="result-count">0 results</span>
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="grid">⊞ Grid</button>
+                    <button class="view-btn" data-view="list">≡ List</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsContainer" class="results-container grid-view">
+            <div class="empty-state">
+                <div class="empty-icon">📚</div>
+                <p>Start searching to discover amazing books</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommended for You (based on borrowed & searched) -->
+    <section class="recommendations-section search-recommendations">
+        <div class="section-header">
+            <h2 class="section-title">Recommended for You</h2>
+            <p class="section-subtitle">Based on your borrowed books and search history</p>
+        </div>
+        <div id="recommendationsContainer" class="books-carousel recommendations-carousel"></div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Adaptive Library System. Search powered by advanced DSA.</p>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast"></div>
+
+    <script src="{{ url_for('static', filename='animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='recommendations.js') }}"></script>
+    <script>
+        let currentSearchType = 'title';
+
+        function refreshRecommendations() {
+            loadRecommendations('recommendationsContainer');
+        }
+        let searchTimeout;
+
+        // Search input listener
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+
+            clearTimeout(searchTimeout);
+
+            if (query.length < 2) {
+                document.getElementById('suggestionsDropdown').style.display = 'none';
+                document.getElementById('resultsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <p>Start typing to search for books</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                performSearch(query);
+            }, 300);
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentSearchType = btn.dataset.type;
+
+                const query = document.getElementById('searchInput').value.trim();
+                if (query.length >= 2) {
+                    performSearch(query);
+                }
+            });
+        });
+
+        // View toggle
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const resultsContainer = document.getElementById('resultsContainer');
+                resultsContainer.classList.remove('grid-view', 'list-view');
+                resultsContainer.classList.add(`${btn.dataset.view}-view`);
+            });
+        });
+
+        async function performSearch(query) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            // Show loading shimmer
+            resultsContainer.innerHTML = `
+                <div class="loading-shimmer">
+                    ${Array(6).fill(0).map(() => `
+                        <div class="shimmer-card" style="height: 400px;"></div>
+                    `).join('')}
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, type: currentSearchType })
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.results && data.results.length > 0) {
+                    renderResults(data.results);
+                    addToRecentBooks(data.results.map(b => b.isbn));
+                    refreshRecommendations();
+                    document.getElementById('resultCount').textContent = `${data.count} results`;
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🔍</div>
+                            <p>No books found matching "${query}"</p>
+                        </div>
+                    `;
+                    document.getElementById('resultCount').textContent = '0 results';
+                }
+            } catch (error) {
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <p>Error searching books. Please try again.</p>
+                    </div>
+                `;
+                showNotification('Search failed', 'error');
+            }
+        }
+
+        function renderResults(results) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+
+            results.forEach((book, index) => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card result-card';
+                bookCard.style.animationDelay = `${index * 50}ms`;
+
+                const categoryColor = getCategoryColor(book.category);
+                const availability = book.availableCopies > 0 ? 'available' : 'unavailable';
+
+                bookCard.innerHTML = `
+                    <div class="book-cover" style="background: ${categoryColor};">
+                        <div class="cover-overlay">${book.category.substring(0, 3).toUpperCase()}</div>
+                        <div class="book-score" title="Relevance Score">${Math.min(100, Math.floor(book.relevanceScore / 10) + 50)}</div>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">${escapeHtml(book.title)}</h3>
+                        <p class="book-author">${escapeHtml(book.author)}</p>
+                        <p class="book-isbn">ISBN: ${book.isbn}</p>
+                        <div class="book-meta">
+                            <span class="category">${book.category}</span>
+                            <span class="availability ${availability}">${book.availableCopies}/${book.totalCopies} available</span>
+                        </div>
+                        <div class="book-actions">
+                            ${book.availableCopies > 0 ?
+                        `<button class="btn-small btn-outline" onclick="issueBook('${book.isbn}')">Issue Book</button>` :
+                        `<button class="btn-small btn-outline disabled">Out of Stock</button>`
+                    }
+                            <button class="btn-small btn-ghost" onclick="reserveBook('${book.isbn}')">Reserve</button>
+                        </div>
+                    </div>
+                `;
+
+                resultsContainer.appendChild(bookCard);
+            });
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                'Programming': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'Software Engineering': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'Machine Learning': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'Data Science': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'Algorithms': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'Web Development': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'Networking': 'linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)',
+                'Cloud Computing': 'linear-gradient(135deg, #5f72bd 0%, #9921e8 100%)',
+            };
+            return colors[category] || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        }
+
+        async function issueBook(isbn) {
+            try {
+                const response = await fetch('/api/issue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isbn })
+                });
+                const data = await response.json();
+                showNotification(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    addToRecentBooks([isbn]);
+                    refreshRecommendations();
+                    setTimeout(() => location.reload(), 1000);
+                }
+            } catch (error) {
+                showNotification('Error issuing book', 'error');
+            }
+        }
+
+        async function reserveBook(isbn) {
+            try {
+                const response = await fetch('/api/reserve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isbn })
+                });
+                const data = await response.json();
+                showNotification(data.message || `You are in position ${data.position} of the queue`, data.success ? 'success' : 'error');
+                if (data.success) refreshRecommendations();
+            } catch (error) {
+                showNotification('Error reserving book', 'error');
+            }
+        }
+
+        async function undoLastAction() {
+            try {
+                const response = await fetch('/api/undo', { method: 'POST' });
+                const data = await response.json();
+                showNotification(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    setTimeout(() => {
+                        // Refresh search results if a query is active
+                        const query = document.getElementById('searchInput').value.trim();
+                        if (query.length >= 2) performSearch(query);
+                        refreshRecommendations();
+                    }, 500);
+                }
+            } catch (e) {
+                showNotification('Undo failed', 'error');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notificationToast');
+            toast.textContent = message;
+            toast.className = `notification-toast show ${type}`;
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        window.addEventListener('load', () => loadRecommendations('recommendationsContainer'));
+    </script>
+</body>
+
+</html>

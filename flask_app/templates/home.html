@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="dark-mode">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <h1 class="brand-logo">📚 Adaptive Library</h1>
+            </div>
+            <div class="navbar-menu">
+                <a href="/home" class="nav-link active">Dashboard</a>
+                <a href="/search" class="nav-link">Search</a>
+                <a href="/profile" class="nav-link">Profile</a>
+                <button class="nav-link btn-ghost" onclick="undoLastAction()" style="border:none; cursor:pointer;"
+                    title="Undo last action">↺ Undo</button>
+                <div class="user-info">
+                    <span class="user-name">{{ name }}</span>
+                    <span class="user-badge" data-type="{{ user_type }}">{{ user_type.replace('_', ' ').title() if
+                        user_type else 'User' }}</span>
+                </div>
+                <a href="/logout" class="nav-link logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-gradient"></div>
+
+        <div class="hero-content">
+            <h2 class="hero-subtitle" style="opacity: 0;">Welcome to Your Library</h2>
+
+            <h1 class="hero-title">
+                <span class="reveal-text" style="display: block; margin-bottom: 0.2em;">Discover Books.</span>
+                <span class="reveal-text" style="display: block; margin-bottom: 0.2em;">Explore Knowledge.</span>
+                <span class="reveal-text" style="display: block;">Master Learning.</span>
+            </h1>
+
+            <p class="hero-description" style="opacity: 0;">
+                Next-generation library management with Smart recommendations
+            </p>
+
+            <div class="hero-cta" style="opacity: 0;">
+                <a href="/search" class="btn-primary btn-large">
+                    <span>Start Searching</span>
+                    <span class="btn-icon">🔍</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Floating stats -->
+        <div class="hero-stats">
+            <div class="stat-card">
+                <div class="stat-number">1000+</div>
+                <div class="stat-label">Books</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">10+</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">⚡</div>
+                <div class="stat-label">Instant Search</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommended for You Section (real-time, based on borrowed & searched) -->
+    <section class="recommendations-section">
+        <div class="section-header">
+            <h2 class="section-title">Recommended for You</h2>
+            <p class="section-subtitle">Based on your borrowed books and search history</p>
+        </div>
+        <div id="recommendationsContainer" class="books-carousel recommendations-carousel"></div>
+    </section>
+
+    <!-- Featured Books Section -->
+    <section class="featured-section">
+        <div class="section-header">
+            <h2 class="section-title">Featured Collection</h2>
+            <div class="section-controls">
+                <button class="control-btn prev-btn">←</button>
+                <button class="control-btn next-btn">→</button>
+            </div>
+        </div>
+
+        <!-- Dynamic Books Container -->
+        <div id="featuredBooksContainer" class="books-carousel">
+            <div class="loading-shimmer-card"></div>
+            <div class="loading-shimmer-card"></div>
+            <div class="loading-shimmer-card"></div>
+            <div class="loading-shimmer-card"></div>
+        </div>
+    </section>
+
+    <!-- Quick Features Section -->
+    <section class="features-section">
+        <div class="section-header">
+            <h2 class="section-title">Why Choose Our Library?</h2>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card glassmorphism-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Lightning Fast</h3>
+                <p>Search 1000+ books in milliseconds with advanced indexing</p>
+            </div>
+            <div class="feature-card glassmorphism-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Smart Recommendations</h3>
+                <p>AI-powered suggestions based on your preferences</p>
+            </div>
+            <div class="feature-card glassmorphism-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Priority System</h3>
+                <p>Fair queue management with role-based priorities</p>
+            </div>
+            <div class="feature-card glassmorphism-card">
+                <div class="feature-icon">✨</div>
+                <h3>Real-time Updates</h3>
+                <p>Instant availability tracking and instant notifications</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Adaptive Library System. Built with precision and care.</p>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast"></div>
+
+    <script src="{{ url_for('static', filename='animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='recommendations.js') }}"></script>
+    <script>
+        // Load Featured Books on Start
+        window.addEventListener('load', () => {
+            loadFeaturedBooks();
+            loadRecommendations('recommendationsContainer');
+        });
+
+        async function loadFeaturedBooks() {
+            try {
+                // Fetch random "featured" books via search to get real data
+                const queries = ['algorithm', 'python', 'design', 'web'];
+                const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: randomQuery, type: 'title' })
+                });
+
+                const data = await response.json();
+                const container = document.getElementById('featuredBooksContainer');
+
+                if (data.success && data.results.length > 0) {
+                    container.innerHTML = data.results.slice(0, 5).map(book => createBookCard(book)).join('');
+                    // Re-initialize animations for new elements
+                    const observers = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                            }
+                        });
+                    }, { threshold: 0.1 });
+                    document.querySelectorAll('.book-card').forEach(card => observers.observe(card));
+                } else {
+                    container.innerHTML = '<p class="text-center text-muted">No featured books today.</p>';
+                }
+            } catch (error) {
+                console.error('Error loading featured books:', error);
+            }
+        }
+
+        function createBookCard(book) {
+            const categoryColor = getCategoryColor(book.category);
+            const overlayText = book.category.split(' ')[0].substring(0, 4).toUpperCase();
+
+            return `
+                <div class="book-card featured-card fade-in">
+                    <div class="book-cover" style="background: ${categoryColor};">
+                        <div class="cover-overlay">${overlayText}</div>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">${book.title}</h3>
+                        <p class="book-author">${book.author}</p>
+                        <div class="book-meta">
+                            <span class="category">${book.category}</span>
+                            <span class="availability ${book.availableCopies > 0 ? 'available' : 'unavailable'}">
+                                ${book.availableCopies} Copies
+                            </span>
+                        </div>
+                        <div class="book-actions">
+                            <button class="btn-small btn-outline" onclick="issueBook('${book.isbn}')">Issue</button>
+                            <button class="btn-small btn-ghost" onclick="reserveBook('${book.isbn}')">Reserve</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                'Programming': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'Software Engineering': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'Machine Learning': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'Data Science': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'Algorithms': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'Web Development': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            };
+            return colors[category] || 'linear-gradient(135deg, #6366f1 0%, #ec4899 100%)';
+        }
+
+        async function issueBook(isbn) {
+            try {
+                const response = await fetch('/api/issue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isbn })
+                });
+                const data = await response.json();
+                showNotification(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    addToRecentBooks([isbn]);
+                    refreshRecommendations();
+                }
+            } catch (error) {
+                showNotification('Error issuing book', 'error');
+            }
+        }
+
+        async function reserveBook(isbn) {
+            try {
+                const response = await fetch('/api/reserve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isbn })
+                });
+                const data = await response.json();
+                showNotification(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    addToRecentBooks([isbn]);
+                    refreshRecommendations();
+                }
+            } catch (error) {
+                showNotification('Error reserving book', 'error');
+            }
+        }
+
+        async function undoLastAction() {
+            try {
+                const response = await fetch('/api/undo', { method: 'POST' });
+                const data = await response.json();
+                showNotification(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    setTimeout(() => {
+                        refreshRecommendations();
+                        // Reload if strictly necessary, but preferably just refresh data
+                        location.reload();
+                    }, 500);
+                }
+            } catch (e) {
+                showNotification('Undo failed', 'error');
+            }
+        }
+
+        function refreshRecommendations() {
+            loadRecommendations('recommendationsContainer');
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notificationToast');
+            toast.textContent = message;
+            toast.className = `notification-toast show ${type}`;
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        // Animate hero on page load + load recommendations
+        window.addEventListener('load', () => {
+            loadRecommendations('recommendationsContainer');
+            const revealTexts = document.querySelectorAll('.reveal-text');
+            revealTexts.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.animation = 'slideInUp 0.8s ease-out forwards';
+                }, index * 200);
+            });
+
+            document.querySelector('.hero-subtitle').style.animation = 'fadeIn 1s ease-out forwards';
+            document.querySelector('.hero-description').style.animation = 'fadeIn 1s ease-out 0.3s forwards';
+            document.querySelector('.hero-cta').style.animation = 'fadeIn 1s ease-out 0.6s forwards';
+        });
+    </script>
+</body>
+
+</html>

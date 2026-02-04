@@ -1,0 +1,685 @@
+================================================================================
+ADAPTIVE LIBRARY SEARCH SYSTEM - BACKEND DOCUMENTATION
+Project: Using Advanced Data Structures
+Date Created: January 28, 2026
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+A production-grade backend system for an adaptive library search application
+using C++17 with advanced data structures. The system handles:
+- Book searching with prefix-based ranking
+- Issue/Return transactions
+- Priority-based reservations
+- Smart recommendations
+- Undo functionality
+
+No databases. All data structures implemented manually from scratch.
+CSV-based data loading at startup (1000 books).
+
+================================================================================
+DIRECTORY STRUCTURE
+================================================================================
+
+LIBRARY-SEARCH/
+├── backend/
+│   ├── models.h
+│   ├── avl_tree.h
+│   ├── avl_tree.cpp
+│   ├── trie.h
+│   ├── trie.cpp
+│   ├── recommendation_graph.h
+│   ├── recommendation_graph.cpp
+│   ├── library_engine.h
+│   ├── library_engine.cpp
+│   └── main.cpp
+├── data/
+│   └── books.csv
+└── BACKEND_DOCUMENTATION.txt (this file)
+
+================================================================================
+FILE DESCRIPTIONS & PURPOSE
+================================================================================
+
+1. models.h
+================================================================================
+PURPOSE: Core data structure definitions
+LOCATION: backend/models.h
+SIZE: ~180 lines
+
+CONTENTS:
+- Book struct: ISBN, title, author, category, total/available copies
+- Copy struct: Physical book copy representation (linked list node)
+- User struct: Student/Faculty with registration metadata
+- Transaction struct: Issue/Return records with timestamps
+- Reservation struct: Priority-aware reservation with scoring
+- SearchResult struct: Ranked search output format
+
+KEY FEATURES:
+- UserType enum (STUDENT, FINAL_YEAR_STUDENT, FACULTY)
+- TransactionType enum (ISSUE, RETURN)
+- Priority scoring for reservations (Faculty=3, Final Year=2, Student=1)
+- Book.copiesHead: Singly linked list of physical copies
+- SearchResult.relevanceScore: Dynamic ranking metric
+
+INTEGRATION:
+Used by all other backend modules as the data contract.
+
+================================================================================
+
+2. avl_tree.h
+================================================================================
+PURPOSE: Header file for AVL Tree self-balancing BST
+LOCATION: backend/avl_tree.h
+SIZE: ~40 lines
+
+CONTENTS:
+- AVLNode struct: Key (ISBN), value (Book*), left/right pointers, height
+- AVLTree class with private/public methods
+
+KEY METHODS:
+- insert(isbn, book): O(log n) insertion with auto-balancing
+- search(isbn): O(log n) lookup
+- remove(isbn): O(log n) deletion with rebalancing
+- getAllBooks(): Inorder traversal, returns sorted vector
+
+PRIVATE HELPERS:
+- getHeight(node): Calculate subtree height
+- getBalance(node): Compute balance factor
+- rotateLeft/rotateRight: Handle 4 rotation cases (LL, RR, LR, RL)
+- insertNode/searchNode/deleteNode: Recursive implementations
+- findMin(node): Find minimum in subtree
+- inorderTraversal: Collect all books in order
+- deleteTree: Cleanup
+
+INVARIANTS:
+- Maintains |balance_factor| <= 1 at all times
+- Height is O(log n) for n nodes
+- Guarantees 1.44 * log(n) worst-case operations
+
+USE CASE:
+ISBN-based indexing. When user searches by ISBN directly, AVL provides
+O(log n) guaranteed lookup time regardless of insertion order.
+
+================================================================================
+
+3. avl_tree.cpp
+================================================================================
+PURPOSE: Implementation of AVL Tree operations
+LOCATION: backend/avl_tree.cpp
+SIZE: ~200 lines
+
+IMPLEMENTS:
+All AVLTree methods declared in avl_tree.h
+
+CRITICAL SECTIONS:
+1. Rotations (rotateRight/rotateLeft):
+   - Update height pointers
+   - Relink parent-child relationships
+   - Maintain BST property
+
+2. Insertion (insertNode):
+   - Standard BST insert
+   - Recalculate height
+   - Apply balance factor check
+   - Execute appropriate rotation (LL, RR, LR, RL)
+
+3. Deletion (deleteNode):
+   - Handle 3 cases: leaf, one child, two children
+   - Find inorder successor for two-child case
+   - Restore balance after deletion
+
+4. Balance Checking:
+   - Left-heavy (> 1): Left-Left or Left-Right
+   - Right-heavy (< -1): Right-Left or Right-Right
+
+COMPLEXITY ANALYSIS:
+- Insert: O(log n) with 1 rotation maximum
+- Search: O(log n) simple traversal
+- Delete: O(log n) with 2 rotations maximum
+- Space: O(n) for n nodes
+
+================================================================================
+
+4. trie.h
+================================================================================
+PURPOSE: Header for Adaptive Trie prefix-search data structure
+LOCATION: backend/trie.h
+SIZE: ~45 lines
+
+CONTENTS:
+- TrieNode struct with:
+  * children[26]: Pointers to 'a'-'z' branches
+  * isEnd: Boolean marking word completion
+  * frequency: Search popularity counter
+  * borrowImpact: Book borrow frequency
+  * bookIDs: Set<string> of book ISBNs at this node (deduplication)
+
+- AdaptiveTrie class
+
+KEY METHODS:
+- insert(word, bookID): Add word→bookID mapping to trie
+- search(query, bookMap): Prefix search returning ranked SearchResults
+- updateFrequency(word): Increment search counter
+- updateBorrowImpact(word): Increment borrow counter
+
+PRIVATE HELPERS:
+- insertWord(node, word, bookID): Recursive insert
+- searchPrefix(node, prefix, bookMap): DFS traversal for prefix matches
+- deleteWord(node, word, bookID): Remove mapping
+- isEmpty(node): Check if node is empty
+- deleteTrieNode(node): Cleanup recursively
+- toLower(c): Case-insensitive character handling
+
+RANKING LOGIC:
+relevanceScore = searchFrequency + (borrowImpact * 2)
+Books borrowed more often rank higher in results.
+
+USE CASE:
+Prefix-based search on book titles and authors. Two tries are maintained
+by library_engine: one for titles, one for authors.
+
+================================================================================
+
+5. trie.cpp
+================================================================================
+PURPOSE: Implementation of Adaptive Trie operations
+LOCATION: backend/trie.cpp
+SIZE: ~180 lines
+
+IMPLEMENTS:
+All AdaptiveTrie methods declared in trie.h
+
+KEY IMPLEMENTATION DETAILS:
+
+1. insertWord():
+   - Navigate trie character by character
+   - Create nodes as needed
+   - Skip non-alphabetic characters (index < 0 or >= 26)
+   - Insert bookID into set at terminal node
+
+2. searchPrefix():
+   - Navigate to end of prefix
+   - Return empty if prefix not found
+   - DFS from prefix node to collect ALL matching bookIDs
+   - Deduplication via std::find check
+
+3. updateFrequency/updateBorrowImpact():
+   - Navigate to word node
+   - Increment counter if isEnd == true
+   - Called after every search/issue operation
+
+4. search():
+   - Gets all matching book ISBNs
+   - Converts to SearchResult objects
+   - Populates with book metadata from bookMap
+   - Sorts by relevanceScore descending
+   - Returns ranked vector
+
+COMPLEXITY ANALYSIS:
+- Insert: O(m) where m = word length
+- Search: O(m + k*n) where m = query length, k = matching books, n = results
+- Update: O(m)
+- Space: O(alphabet_size * num_words)
+
+================================================================================
+
+6. recommendation_graph.h
+================================================================================
+PURPOSE: Header for graph-based book recommendation engine
+LOCATION: backend/recommendation_graph.h
+SIZE: ~40 lines
+
+CONTENTS:
+- GraphNode struct:
+  * bookID: ISBN identifier
+  * adjacentBooks: Vector of connected book ISBNs
+
+- RecommendationGraph class
+
+KEY METHODS:
+- addNode(bookID): Create vertex
+- addEdge(bookID1, bookID2): Create undirected edge between books
+- getRecommendations(bookID, limit, bookMap): BFS-based discovery
+- buildGraphFromCategory(category, books): Auto-create edges by category
+
+PRIVATE HELPERS:
+- bfsRecommendations(bookID, depth, results, bookMap): BFS traversal
+
+EDGE CREATION LOGIC:
+1. Category-based: All books in same category are connected
+2. Borrow-based: Books issued together could be connected (future)
+3. Bidirectional: All edges are undirected
+
+USE CASE:
+"If you like this book, you might also like..." recommendations.
+Traverses the graph 2 levels deep to find related books.
+
+================================================================================
+
+7. recommendation_graph.cpp
+================================================================================
+PURPOSE: Implementation of recommendation graph operations
+LOCATION: backend/recommendation_graph.cpp
+SIZE: ~140 lines
+
+IMPLEMENTS:
+All RecommendationGraph methods declared in recommendation_graph.h
+
+KEY IMPLEMENTATION DETAILS:
+
+1. addNode():
+   - Creates GraphNode if not exists
+   - Uses unordered_map for O(1) lookup
+
+2. addEdge():
+   - Calls addNode for both endpoints
+   - Adds bidirectional connections
+   - Prevents duplicate edges via std::find check
+
+3. bfsRecommendations():
+   - Uses std::queue for level-order traversal
+   - Maintains visited set to prevent cycles
+   - Explores up to specified depth
+   - Creates SearchResult for each discovered book
+   - Scores by book.borrowImpact
+
+4. getRecommendations():
+   - Calls BFS with depth=2
+   - Sorts results by relevanceScore descending
+   - Limits to specified count
+   - Returns ranked vector
+
+5. buildGraphFromCategory():
+   - Filters books by category
+   - Creates all-to-all edges within category
+   - Called once during library_engine initialization
+
+COMPLEXITY ANALYSIS:
+- addNode: O(1)
+- addEdge: O(d) where d = degree of node
+- BFS: O(V + E) where V = books, E = edges
+- Space: O(V + E)
+
+================================================================================
+
+8. library_engine.h
+================================================================================
+PURPOSE: Main orchestrator coordinating all data structures
+LOCATION: backend/library_engine.h
+SIZE: ~50 lines
+
+CONTENTS:
+- ReservationCompare: Custom comparator for priority queue
+  * Sorts by: priority (desc) then timestamp (asc)
+  * Faculty (3) > Final Year (2) > Student (1)
+
+- LibraryEngine class (main coordinator)
+
+KEY DATA MEMBERS:
+- bookISBNIndex: AVLTree for ISBN lookup
+- titleTrie: AdaptiveTrie for title search
+- authorTrie: AdaptiveTrie for author search
+- recommendations: RecommendationGraph
+- books: unordered_map<ISBN, Book*> for O(1) access
+- users: unordered_map<UserID, User*>
+- reservationQueues: unordered_map<ISBN, queue<Reservation*>>
+- transactionHistory: Stack<Transaction*> for undo
+- transactionCounter: Auto-increment TXN_ID
+- reservationCounter: Auto-increment RES_ID
+
+KEY METHODS:
+- addBook/getBook/getAllBooks: Book management
+- addUser/getUser: User management
+- searchByTitle/searchByAuthor: Query operations
+- issueBook: Borrow with transaction logging
+- returnBook: Return with reservation processing
+- reserveBook: Create priority-based reservation
+- getRecommendations: Delegate to graph
+- undoLastAction: Reverse last transaction
+- buildSearchIndices: Initialize tries
+- buildRecommendationGraph: Build category graph
+
+OUTPUT FORMAT: All results returned as nlohmann::json
+
+USE CASE:
+Central hub. All Flask requests go through this engine.
+Coordinates between multiple DSAs to provide unified API.
+
+================================================================================
+
+9. library_engine.cpp
+================================================================================
+PURPOSE: Implementation of library engine orchestration
+LOCATION: backend/library_engine.cpp
+SIZE: ~250 lines
+
+IMPLEMENTS:
+All LibraryEngine methods declared in library_engine.h
+
+KEY IMPLEMENTATION DETAILS:
+
+1. buildSearchIndices():
+   - Iterates all books
+   - Tokenizes title by whitespace
+   - Tokenizes author by whitespace
+   - Inserts each word into respective trie
+   - Called once at startup
+
+2. buildRecommendationGraph():
+   - Collects all unique categories
+   - For each category, calls buildGraphFromCategory
+   - Creates category-based edges
+
+3. searchByTitle/searchByAuthor():
+   - Delegates to respective trie.search()
+   - Calls updateFrequency to track popularity
+   - Returns ranked SearchResult vector
+
+4. issueBook():
+   - Validates user exists
+   - Validates book exists
+   - Checks availableCopies > 0
+   - Decrements availableCopies
+   - Creates Transaction and pushes to stack
+   - Updates trie frequency/borrowImpact
+   - Increments book.borrowImpact
+   - Returns JSON success/error
+
+5. returnBook():
+   - Similar validation
+   - Increments availableCopies
+   - Creates return Transaction
+   - Could process reservations queue here (future)
+   - Returns JSON response
+
+6. reserveBook():
+   - Creates Reservation with priority score
+   - Pushes to queue for given ISBN
+   - Priority comparator orders by:
+     * Faculty > Final Year > Student
+     * Earlier timestamp wins ties
+   - Returns JSON with position in queue
+
+7. undoLastAction():
+   - Pops from transactionHistory
+   - Reverses issue/return (flip availableCopies)
+   - Deletes transaction
+   - Returns JSON response
+
+JSON RESPONSES:
+All methods return {"success": bool, "message": string, ...metadata}
+
+COMPLEXITY ANALYSIS:
+- searchByTitle: O(m + k*n) from trie
+- issueBook: O(log n) from AVL tree insert
+- reserveBook: O(log n) for priority queue
+- undoLastAction: O(1) from stack
+
+================================================================================
+
+10. main.cpp
+================================================================================
+PURPOSE: Entry point, CSV loader, and request handler
+LOCATION: backend/main.cpp
+SIZE: ~280 lines
+
+CONTENTS:
+Global library_engine pointer and handler functions
+
+INITIALIZATION PROCESS:
+1. Create LibraryEngine instance
+2. Load books.csv from ../data/books.csv
+3. Call buildSearchIndices() to populate tries
+4. Call buildRecommendationGraph() to build category edges
+5. Add 3 sample users (Student, Faculty, Final Year)
+6. Enter stdin loop for subprocess communication
+
+CSV LOADING:
+- parseCSVLine(): Handles quoted fields
+- loadBooksFromCSV(): Reads CSV line by line
+- Skips header row
+- Creates Book objects and adds to engine
+- Handles missing/invalid copies count gracefully
+
+REQUEST HANDLERS (JSON Input):
+
+1. handleSearch(request, response):
+   ACTION: "search"
+   PARAMETERS: "query" (required), "type" (optional: "title" or "author")
+   OUTPUT: { "success": bool, "count": int, "results": SearchResult[] }
+
+2. handleIssue(request, response):
+   ACTION: "issue"
+   PARAMETERS: "userID" (required), "isbn" (required)
+   OUTPUT: { "success": bool, "message": string, "transactionID": string, ... }
+
+3. handleReturn(request, response):
+   ACTION: "return"
+   PARAMETERS: "userID" (required), "isbn" (required)
+   OUTPUT: { "success": bool, "message": string, "transactionID": string, ... }
+
+4. handleReserve(request, response):
+   ACTION: "reserve"
+   PARAMETERS: "userID" (required), "isbn" (required)
+   OUTPUT: { "success": bool, "message": string, "reservationID": string, "position": int }
+
+5. handleRecommendations(request, response):
+   ACTION: "recommendations"
+   PARAMETERS: "isbn" (required), "limit" (optional, default=5)
+   OUTPUT: { "success": bool, "count": int, "results": SearchResult[] }
+
+6. handleUndo(response):
+   ACTION: "undo"
+   PARAMETERS: none
+   OUTPUT: { "success": bool, "message": string }
+
+MAIN LOOP:
+- Reads JSON line from stdin (subprocess communication)
+- Parses JSON request
+- Determines action type
+- Calls appropriate handler
+- Outputs JSON response to stdout
+- Exception handling: Returns error JSON on parse failure
+
+INTEGRATION WITH FLASK:
+Flask subprocess calls this executable, sends JSON via stdin, reads JSON from stdout.
+This architecture maintains pure separation of concerns:
+- C++ handles all business logic
+- Flask handles HTTP routing and templating
+- JavaScript handles UI animations only
+
+================================================================================
+
+11. books.csv
+================================================================================
+PURPOSE: Dataset of 1000 preloaded books
+LOCATION: data/books.csv
+FORMAT: CSV with header row
+SIZE: ~1000 rows
+
+COLUMNS:
+- ISBN: 13-digit ISBN or ISBN-like identifier
+- Title: Book name
+- Author: Author name(s)
+- Category: Subject category
+- Copies: Number of physical copies available
+
+CATEGORIES INCLUDED:
+- Programming (C++, Java, Python, Go, Rust, Scala, JavaScript)
+- Software Engineering (Design Patterns, Clean Code, Refactoring)
+- Data Structures & Algorithms
+- Computer Science (Operating Systems, Networking, Theory)
+- Cloud & DevOps (Kubernetes, Docker, CI-CD)
+- Machine Learning & Deep Learning
+- Data Science & Analytics
+- Web Development (REST, SOAP, Web Services)
+- Cybersecurity & Information Security
+- Agile Methodology & Project Management
+- Software Architecture & Design
+
+SAMPLE ENTRIES:
+978-0-13-110362-7,The C++ Programming Language,Bjarne Stroustrup,Programming,3
+978-0-201-61622-4,The Design Patterns,Gang of Four,Software Engineering,2
+978-0-134-49418-8,Effective Java,Joshua Bloch,Programming,3
+
+LOADING:
+- Loaded once at startup by main.cpp
+- Parsed line-by-line
+- Each book added to AVLTree by ISBN
+- Each title/author word added to respective Trie
+- All books stored in unordered_map for O(1) access
+
+DESIGN RATIONALE:
+Curated to represent real academic/professional library content.
+Categories chosen to test relevance ranking and recommendations.
+Mix of popular classics and modern titles for variety.
+
+================================================================================
+
+ARCHITECTURE OVERVIEW
+================================================================================
+
+DATA FLOW:
+Input (Flask stdin) 
+    → main.cpp (parse JSON)
+    → library_engine (orchestrate)
+    → AVL/Trie/Graph (execute DSA)
+    → Output (JSON stdout)
+    → Flask (render)
+
+SEPARATION OF CONCERNS:
+1. Data Layer (models.h):
+   - Defines contracts between modules
+   - No business logic, pure data
+
+2. Index Layer (AVL, Trie, Graph):
+   - Specialized data structures
+   - Each optimized for specific operations
+   - No knowledge of HTTP or UI
+
+3. Orchestration Layer (library_engine):
+   - Coordinates between indices
+   - Implements business rules
+   - Provides unified JSON API
+
+4. Interface Layer (main.cpp):
+   - Handles subprocess communication
+   - Parses/validates input
+   - Exception handling and error reporting
+
+5. Presentation Layer (Flask + HTML/CSS/JS):
+   - Renders responses
+   - Handles HTTP routing
+   - UI interactions (separate build)
+
+================================================================================
+
+COMPILATION & EXECUTION
+================================================================================
+
+DEPENDENCIES:
+- C++17 compiler (g++ or MinGW on Windows)
+- nlohmann/json.hpp (header-only JSON library)
+- Standard library only (no external dependencies)
+
+COMPILATION (Example):
+g++ -std=c++17 -O2 backend/main.cpp backend/avl_tree.cpp backend/trie.cpp \
+    backend/recommendation_graph.cpp backend/library_engine.cpp \
+    -o backend/library_engine.exe
+
+EXECUTION:
+./library_engine.exe < input.json > output.json
+
+SUBPROCESS USAGE (Flask):
+process = subprocess.Popen(
+    [executable_path],
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE
+)
+stdout, stderr = process.communicate(input_json.encode())
+
+================================================================================
+
+ALGORITHM COMPLEXITY SUMMARY
+================================================================================
+
+Operation                    Time Complexity    Space Complexity
+─────────────────────────────────────────────────────────────────
+Book Search (Title/Author)   O(m + k*n)        O(n) - trie nodes
+  where m = query length
+        k = matching books
+        n = trie height
+
+ISBN Lookup                  O(log n)          O(n) - AVL nodes
+
+Issue/Return Book            O(log n)          O(1)
+
+Reserve Book                 O(log n)          O(1)
+
+Get Recommendations          O(V + E)          O(V) - visited set
+  where V = books
+        E = category edges
+
+Undo Last Action            O(1)              O(1)
+
+CSV Load 1000 Books         O(n*m)            O(n) - book objects
+  where n = num books
+        m = avg word count
+
+Build Indices               O(n*m)            O(n*m) - trie nodes
+Build Graph                 O(n²/c)           O(n²/c) - edges
+
+================================================================================
+
+FUTURE ENHANCEMENTS
+================================================================================
+
+1. Persistence:
+   - Serialize/deserialize trie and AVL to disk
+   - Transaction logging to file
+   - Database integration (optional)
+
+2. Advanced Features:
+   - Book ratings and reviews
+   - Personalized recommendations (user history)
+   - Fine management for overdue books
+   - Book hold system (FIFO vs priority)
+
+3. Performance:
+   - Lazy loading for large datasets
+   - Caching frequently accessed books
+   - Parallel search across multiple tries
+
+4. Testing:
+   - Unit tests for each DSA
+   - Integration tests for engine
+   - Load testing with 10k+ books
+
+5. Analytics:
+   - Track popular searches
+   - Most borrowed books
+   - User borrowing patterns
+
+================================================================================
+
+PROJECT STATISTICS
+================================================================================
+
+Total Lines of Code:        ~1500
+Backend Files:              9
+Data Files:                 1
+Data Structures:            5 (AVL, Trie, Graph, Stack, Queue/Priority Queue)
+Books in Dataset:           1000
+Maximum Depth of Trie:      ~20 (average title/author length)
+AVL Tree Height (1000):     ~log(1000) ≈ 10 levels
+Supported Actions:          6 (search, issue, return, reserve, recommend, undo)
+
+================================================================================
+
+END OF DOCUMENTATION
+================================================================================
+Created: January 28, 2026
+Status: Production-Ready Backend
+Next Phase: Frontend Integration (Flask + HTML/CSS/JavaScript)

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Search System - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="login-page">
+    <div class="login-container">
+        <!-- Animated background gradient -->
+        <div class="gradient-bg"></div>
+
+        <!-- Left side - branding -->
+        <div class="login-branding">
+            <div class="brand-content">
+                <h1 class="brand-title">
+                    <span class="gradient-text">Adaptive</span> Library
+                </h1>
+                <p class="brand-subtitle">Premium Book Discovery & Management</p>
+                <div class="brand-features">
+                    <div class="feature">
+                        <div class="feature-icon">⚡</div>
+                        <span>Instant Search</span>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🎯</div>
+                        <span>Smart Recommendations</span>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✨</div>
+                        <span>Priority Reservations</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right side - login form -->
+        <div class="login-form-container">
+            <div class="glassmorphism-card login-card">
+                <div class="form-header">
+                    <h2>Welcome Back</h2>
+                    <p>Sign in to access your library account</p>
+                </div>
+
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="userID" class="form-label">User ID</label>
+                        <input type="text" id="userID" name="userID" class="form-input"
+                            placeholder="Enter your user ID (e.g., U001)" required>
+                        <div class="input-focus-border"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-input" placeholder="Enter your name"
+                            required>
+                        <div class="input-focus-border"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="userType" class="form-label">User Type</label>
+                        <div class="user-type-selector">
+                            <input type="radio" id="student" name="userType" value="student" checked>
+                            <label for="student" class="type-label">
+                                <span class="type-icon">👤</span>
+                                <span>Student</span>
+                            </label>
+
+                            <input type="radio" id="finalYear" name="userType" value="final_year">
+                            <label for="finalYear" class="type-label">
+                                <span class="type-icon">🎓</span>
+                                <span>Final Year</span>
+                            </label>
+
+                            <input type="radio" id="faculty" name="userType" value="faculty">
+                            <label for="faculty" class="type-label">
+                                <span class="type-icon">👨‍🎓</span>
+                                <span>Faculty</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary login-btn">
+                        <span>Enter Library</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+
+                    <div id="errorMessage" class="error-message"></div>
+                </form>
+
+                <div class="login-footer">
+                    <p>Demo Accounts:</p>
+                    <div class="demo-accounts">
+                        <code>U001</code> <code>U002</code> <code>U003</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='animations.js') }}"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const userID = document.getElementById('userID').value;
+            const name = document.getElementById('name').value;
+            const userType = document.querySelector('input[name="userType"]:checked').value;
+            const errorDiv = document.getElementById('errorMessage');
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userID, name, userType })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.querySelector('.login-btn').classList.add('btn-loading');
+                    setTimeout(() => window.location.href = '/home', 800);
+                } else {
+                    errorDiv.textContent = data.message || 'Login failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

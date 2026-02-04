@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Library System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="dark-mode">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">
+                <h1 class="brand-logo">📚 Adaptive Library</h1>
+            </div>
+            <div class="navbar-menu">
+                <a href="/home" class="nav-link">Dashboard</a>
+                <a href="/search" class="nav-link">Search</a>
+                <a href="/profile" class="nav-link active">Profile</a>
+                <button id="undoBtn" class="nav-link btn-ghost" onclick="undoLastAction()"
+                    style="border:none; cursor:pointer;" title="Undo last action">↺ Undo</button>
+                <div class="user-info">
+                    <span class="user-name">{{ name }}</span>
+                    <span class="user-badge" data-type="{{ user_type }}">{{ user_type.replace('_', ' ').title() if
+                        user_type else 'User' }}</span>
+                </div>
+                <a href="/logout" class="nav-link logout-btn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Hero -->
+    <section class="profile-hero">
+        <div class="profile-hero-content">
+            <div class="profile-avatar">
+                <div class="avatar-circle">
+                    <span class="avatar-initial">{{ name[0].upper() if name else 'U' }}</span>
+                </div>
+            </div>
+            <h1 class="profile-name" id="profileName">{{ name }}</h1>
+            <p class="profile-subtitle" id="profileSubtitle">Loading...</p>
+        </div>
+    </section>
+
+    <!-- Profile Content -->
+    <section class="profile-content">
+        <div class="profile-container">
+            <!-- Left Column: User Info & Stats -->
+            <div class="profile-left">
+                <!-- User Information Card -->
+                <div class="profile-card glassmorphism-card">
+                    <div class="card-header">
+                        <h2 class="card-title">User Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-row">
+                            <span class="info-label">User ID</span>
+                            <span class="info-value" id="userID">{{ user_id }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value" id="userName">{{ name }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">User Type</span>
+                            <span class="info-value">
+                                <span class="user-type-badge" id="userTypeBadge" data-type="{{ user_type }}">
+                                    {{ user_type.replace('_', ' ').title() if user_type else 'User' }}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Registration Date</span>
+                            <span class="info-value" id="registrationDate">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Widgets -->
+                <div class="stats-grid">
+                    <div class="stat-widget glassmorphism-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="statTotalBorrowed">0</div>
+                            <div class="stat-label">Total Borrowed</div>
+                        </div>
+                    </div>
+                    <div class="stat-widget glassmorphism-card">
+                        <div class="stat-icon">📖</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="statActiveBorrows">0</div>
+                            <div class="stat-label">Active Borrows</div>
+                        </div>
+                    </div>
+                    <div class="stat-widget glassmorphism-card">
+                        <div class="stat-icon">🔖</div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="statReservations">0</div>
+                            <div class="stat-label">Reservations</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Right Column: Borrowed Books & Activity -->
+            <div class="profile-right">
+                <!-- Borrowed Books Section -->
+                <div class="profile-card glassmorphism-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Currently Borrowed Books</h2>
+                        <span class="card-badge" id="activeBorrowsBadge">0 Active</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="borrowed-books-list" id="borrowedBooksList">
+                            <div class="loading-spinner" style="grid-column: 1 / -1; margin: 40px auto;"></div>
+                        </div>
+
+                        <div class="empty-borrowed" id="emptyBorrowed" style="display: none;">
+                            <div class="empty-icon">📚</div>
+                            <p>No books currently borrowed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div class="profile-card glassmorphism-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Recent Activity</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-timeline" id="activityTimeline">
+                            <div class="loading-spinner" style="margin: 40px auto;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended for You (based on borrowed & searched) -->
+        <div class="recommendations-section profile-recommendations">
+            <div class="section-header">
+                <h2 class="section-title">Recommended for You</h2>
+                <p class="section-subtitle">Based on your borrowed books and search history</p>
+            </div>
+            <div id="recommendationsContainer" class="books-carousel recommendations-carousel"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Adaptive Library System. Your reading journey, tracked with precision.</p>
+    </footer>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast"></div>
+
+    <script src="{{ url_for('static', filename='animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='recommendations.js') }}"></script>
+    <script>
+        function refreshRecommendations() {
+            loadRecommendations('recommendationsContainer');
+        }
+
+        async function returnBook(isbn) {
+            try {
+                const response = await fetch('/api/return', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isbn })
+                });
+                const data = await response.json();
+                showNotification(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    setTimeout(() => {
+                        loadProfileData();
+                        refreshRecommendations();
+                    }, 500);
+                }
+            } catch (error) {
+                showNotification('Error returning book', 'error');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const toast = document.getElementById('notificationToast');
+            toast.textContent = message;
+            toast.className = `notification-toast show ${type}`;
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        // Load profile data dynamically (with retry for backend cold start)
+        async function loadProfileData(retries = 2) {
+            try {
+                const response = await fetch('/api/profile');
+                const data = await response.json();
+
+                if (data.success && data.user) {
+                    // Update user info - use session name (from template) instead of backend name
+                    const user = data.user;
+                    const sessionName = '{{ name }}'; // Use the name from Flask session
+                    document.getElementById('userID').textContent = user.userID;
+                    document.getElementById('userName').textContent = sessionName;
+                    document.getElementById('profileName').textContent = sessionName;
+
+                    // Update avatar initial
+                    const avatarInitial = document.querySelector('.avatar-initial');
+                    if (avatarInitial && sessionName) {
+                        avatarInitial.textContent = sessionName[0].toUpperCase();
+                    }
+
+                    // Update user type
+                    const userType = user.type;
+                    const userTypeBadge = document.getElementById('userTypeBadge');
+                    userTypeBadge.setAttribute('data-type', userType);
+                    userTypeBadge.textContent = userType.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+
+                    // Update registration date
+                    const regDate = new Date(user.registrationDate * 1000);
+                    document.getElementById('registrationDate').textContent = regDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    document.getElementById('profileSubtitle').textContent = `Library Member Since ${regDate.getFullYear()}`;
+
+                    // Update statistics
+                    const stats = data.statistics;
+                    document.getElementById('statTotalBorrowed').textContent = stats.totalBorrowed;
+                    document.getElementById('statActiveBorrows').textContent = stats.activeBorrows;
+                    document.getElementById('statReservations').textContent = stats.reservations;
+
+
+                    // Update borrowed books
+                    renderBorrowedBooks(data.borrowedBooks || []);
+
+                    // Update activity timeline
+                    renderActivityTimeline(data.activity || []);
+
+                    // Animate elements
+                    animateElements();
+                } else if (retries > 0) {
+                    await new Promise(r => setTimeout(r, 400));
+                    return loadProfileData(retries - 1);
+                } else {
+                    showNotification('Failed to load profile data', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                if (retries > 0) {
+                    await new Promise(r => setTimeout(r, 400));
+                    return loadProfileData(retries - 1);
+                }
+                showNotification('Error loading profile data', 'error');
+            }
+        }
+
+        function renderBorrowedBooks(books) {
+            const container = document.getElementById('borrowedBooksList');
+            const emptyState = document.getElementById('emptyBorrowed');
+            const badge = document.getElementById('activeBorrowsBadge');
+
+            badge.textContent = `${books.length} Active`;
+
+            if (books.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            container.innerHTML = books.map(book => {
+                const issueDate = new Date(book.issueDate * 1000);
+                const dueDate = new Date(book.dueDate * 1000);
+                const now = new Date();
+                const daysUntilDue = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+
+                let statusClass = 'status-on-time';
+                let statusText = 'On Time';
+                let dueClass = '';
+
+                if (book.status === 'overdue') {
+                    statusClass = 'status-overdue';
+                    statusText = 'Overdue';
+                    dueClass = 'overdue';
+                } else if (book.status === 'due_soon') {
+                    statusClass = 'status-due-soon';
+                    statusText = 'Due Soon';
+                    dueClass = 'due-soon';
+                }
+
+                const categoryColor = getCategoryColor(book.category);
+
+                return `
+                    <div class="borrowed-book-item">
+                        <div class="book-item-cover" style="background: ${categoryColor};">
+                            <div class="cover-overlay">${book.category.substring(0, 3).toUpperCase()}</div>
+                        </div>
+                        <div class="book-item-info">
+                            <h3 class="book-item-title">${escapeHtml(book.title)}</h3>
+                            <p class="book-item-author">${escapeHtml(book.author)}</p>
+                            <div class="book-item-meta">
+                                <div class="meta-item">
+                                    <span class="meta-label">Issued:</span>
+                                    <span class="meta-value">${issueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Due:</span>
+                                    <span class="meta-value ${dueClass}">${dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                </div>
+                            </div>
+                            <div class="book-item-status">
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="book-item-actions">
+                            <button class="btn-small btn-outline" onclick="returnBook('${book.isbn}')">Return Book</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderActivityTimeline(activities) {
+            const container = document.getElementById('activityTimeline');
+
+            if (activities.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No recent activity</p></div>';
+                return;
+            }
+
+            container.innerHTML = activities.map(activity => {
+                const timestamp = new Date(activity.timestamp * 1000);
+                const timeAgo = getTimeAgo(timestamp);
+                const actionType = activity.type;
+                const markerClass = actionType === 'issue' ? 'timeline-issue' :
+                    actionType === 'return' ? 'timeline-return' : 'timeline-reserve';
+                const actionText = actionType === 'issue' ? 'Issued Book' :
+                    actionType === 'return' ? 'Returned Book' : 'Reserved Book';
+
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-marker ${markerClass}"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <span class="timeline-action">${actionText}</span>
+                                <span class="timeline-date">${timeAgo}</span>
+                            </div>
+                            <p class="timeline-description">${escapeHtml(activity.title)} by ${escapeHtml(activity.author)}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                'Programming': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'Software Engineering': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'Machine Learning': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'Data Science': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'Algorithms': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'Web Development': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            };
+            return colors[category] || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            const diffWeeks = Math.floor(diffDays / 7);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+            if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+            if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+            if (diffWeeks < 4) return `${diffWeeks} week${diffWeeks > 1 ? 's' : ''} ago`;
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function animateElements() {
+            // Animate timeline items
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            timelineItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    item.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+
+            // Animate stat widgets
+            const statWidgets = document.querySelectorAll('.stat-widget');
+            statWidgets.forEach((widget, index) => {
+                widget.style.opacity = '0';
+                widget.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    widget.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                    widget.style.opacity = '1';
+                    widget.style.transform = 'translateY(0)';
+                }, 200 + index * 100);
+            });
+
+            // Animate borrowed books
+            const bookItems = document.querySelectorAll('.borrowed-book-item');
+            bookItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+        }
+
+        async function issueBook(isbn) {
+            try {
+                const response = await fetch('/api/issue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isbn })
+                });
+                const data = await response.json();
+                showNotification(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    loadProfileData();
+                    refreshRecommendations();
+                }
+            } catch (error) {
+                showNotification('Error issuing book', 'error');
+            }
+        }
+
+        async function reserveBook(isbn) {
+            try {
+                const response = await fetch('/api/reserve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isbn })
+                });
+                const data = await response.json();
+                showNotification(data.message || `You are in position ${data.position} of the queue`, data.success ? 'success' : 'error');
+                if (data.success) refreshRecommendations();
+            } catch (error) {
+                showNotification('Error reserving book', 'error');
+            }
+        }
+
+        // Load profile data and recommendations on page load
+        window.addEventListener('load', () => {
+            loadProfileData();
+            loadRecommendations('recommendationsContainer');
+            // Real-time update every 10 seconds
+            setInterval(() => loadProfileData(0), 10000);
+        });
+
+        async function undoLastAction() {
+            try {
+                const response = await fetch('/api/undo', { method: 'POST' });
+                const data = await response.json();
+                showNotification(data.message, data.success ? 'success' : 'error');
+                if (data.success) {
+                    setTimeout(() => {
+                        loadProfileData();
+                        refreshRecommendations();
+                    }, 500);
+                }
+            } catch (e) {
+                showNotification('Undo failed', 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>
