@@ -1,0 +1,50 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "flask_app/app.py",
+            "use": "@vercel/python"
+        },
+        {
+            "src": "build.sh",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "dist"
+            }
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "flask_app/app.py"
+        },
+        {
+            "src": "/login",
+            "dest": "flask_app/app.py"
+        },
+        {
+            "src": "/home",
+            "dest": "flask_app/app.py"
+        },
+        {
+            "src": "/profile",
+            "dest": "flask_app/app.py"
+        },
+        {
+            "src": "/search",
+            "dest": "flask_app/app.py"
+        },
+        {
+            "src": "/logout",
+            "dest": "flask_app/app.py"
+        },
+        {
+            "src": "/static/(.*)",
+            "dest": "flask_app/static/$1"
+        },
+        {
+            "src": "/",
+            "dest": "flask_app/app.py"
+        }
+    ]
+}

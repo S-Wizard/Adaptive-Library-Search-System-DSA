@@ -13,9 +13,15 @@ app.config['SESSION_COOKIE_AGE'] = timedelta(hours=24)
 
 # ===== PATH FIX (VERY IMPORTANT) =====
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_EXECUTABLE = os.path.abspath(
-    os.path.join(BASE_DIR, '..', 'backend', 'library.exe')
-)
+# On Vercel (Linux), the executable won't have .exe extension
+if os.name == 'nt':
+    BACKEND_EXECUTABLE = os.path.abspath(os.path.join(BASE_DIR, '..', 'backend', 'library.exe'))
+else:
+    # Try multiple possible locations for Linux
+    BACKEND_EXECUTABLE = os.path.abspath(os.path.join(BASE_DIR, '..', 'backend', 'library'))
+    if not os.path.exists(BACKEND_EXECUTABLE):
+        # Fallback for Vercel deployment structure if needed
+        BACKEND_EXECUTABLE = os.path.join(os.getcwd(), 'backend', 'library')
 
 BACKEND_PROCESS = None
 USE_MOCK_BACKEND = False
@@ -55,17 +61,27 @@ def start_backend():
     if BACKEND_PROCESS is None:
         # Run backend with CWD set to project root so it can find "data/" folder
         cwd_path = os.path.abspath(os.path.join(BASE_DIR, '..'))
-        BACKEND_PROCESS = subprocess.Popen(
-            [BACKEND_EXECUTABLE],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            bufsize=1,
-            cwd=cwd_path
-        )
-        # Consume "Library System Ready" banner so first readline() gets actual JSON
-        _ = BACKEND_PROCESS.stdout.readline()
+        
+        # Check if we are running in a read-only environment (like Vercel)
+        # and ensure path exists.
+        if not os.path.exists(cwd_path):
+             cwd_path = os.getcwd()
+
+        try:
+            BACKEND_PROCESS = subprocess.Popen(
+                [BACKEND_EXECUTABLE],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                bufsize=1,
+                cwd=cwd_path
+            )
+            # Consume "Library System Ready" banner so first readline() gets actual JSON
+            _ = BACKEND_PROCESS.stdout.readline()
+        except Exception as e:
+            print(f"FAILED TO START BACKEND: {e}")
+            USE_MOCK_BACKEND = True
 
 def send_to_backend(payload):
     global BACKEND_PROCESS
