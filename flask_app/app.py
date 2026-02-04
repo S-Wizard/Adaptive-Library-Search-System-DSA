@@ -17,11 +17,20 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if os.name == 'nt':
     BACKEND_EXECUTABLE = os.path.abspath(os.path.join(BASE_DIR, '..', 'backend', 'library.exe'))
 else:
-    # Try multiple possible locations for Linux
-    BACKEND_EXECUTABLE = os.path.abspath(os.path.join(BASE_DIR, '..', 'backend', 'library'))
-    if not os.path.exists(BACKEND_EXECUTABLE):
-        # Fallback for Vercel deployment structure if needed
-        BACKEND_EXECUTABLE = os.path.join(os.getcwd(), 'backend', 'library')
+    # Try multiple possible locations for Linux to find the binary
+    possible_paths = [
+        os.path.abspath(os.path.join(BASE_DIR, '..', 'backend', 'library')), # Main repo structure
+        os.path.join(os.getcwd(), 'backend', 'library'),                    # Vercel current dir
+        os.path.join(os.getcwd(), 'library')                                # Root dir
+    ]
+    BACKEND_EXECUTABLE = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            BACKEND_EXECUTABLE = path
+            break
+    
+    if not BACKEND_EXECUTABLE:
+        BACKEND_EXECUTABLE = possible_paths[0] # Default to first path if not found
 
 BACKEND_PROCESS = None
 USE_MOCK_BACKEND = False
