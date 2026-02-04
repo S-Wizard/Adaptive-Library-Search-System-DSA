@@ -3,7 +3,12 @@ import subprocess
 import json
 import os
 import threading
+import csv
 from datetime import timedelta
+from pymongo import MongoClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BACKEND_LOCK = threading.Lock()
 
@@ -11,8 +16,31 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'library_search_secret_key_2026'
 app.config['SESSION_COOKIE_AGE'] = timedelta(hours=24)
 
+# MongoDB Setup
+MONGO_URI = os.getenv("MONGODB_URI")
+if not MONGO_URI:
+    print("⚠ MONGODB_URI not found in environment variables. Persistence will be limited.")
+    client = None
+    db = None
+else:
+    client = MongoClient(MONGO_URI)
+    db = client['library_system']
+
 # ===== PATH FIX (VERY IMPORTANT) =====
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Temp Data Path for Vercel/Linux
+# We use /tmp because it's the only writable directory on Vercel
+if os.name == 'nt':
+    DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, '..', 'data'))
+else:
+    DATA_DIR = '/tmp/libsearch_data'
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+BOOKS_CSV = os.path.join(DATA_DIR, 'books.csv')
+USERS_CSV = os.path.join(DATA_DIR, 'users.csv')
+TRANS_CSV = os.path.join(DATA_DIR, 'transactions.csv')
+
 # On Vercel (Linux), the executable won't have .exe extension
 if os.name == 'nt':
     BACKEND_EXECUTABLE = os.path.abspath(os.path.join(BASE_DIR, '..', 'backend', 'library.exe'))
@@ -35,6 +63,103 @@ else:
 BACKEND_PROCESS = None
 USE_MOCK_BACKEND = False
 MOCK_BOOKS = []
+
+# ================= MIGRATION & REHYDRATION =================
+
+def rehydrate_from_mongodb():
+    """Download data from MongoDB to local temp CSV files for C++ backend"""
+    if not db: return
+
+    print("🔄 Rehydrating data from MongoDB...")
+    
+    # 1. Rehydrate Books
+    books = list(db.books.find({}, {'_id': 0}))
+    if books:
+        with open(BOOKS_CSV, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['ISBN', 'Title', 'Author', 'Category', 'Copies'])
+            writer.writeheader()
+            for b in books:
+                # Map mongo keys to CSV keys
+                writer.writerow({
+                    'ISBN': b.get('isbn'),
+                    'Title': b.get('title'),
+                    'Author': b.get('author'),
+                    'Category': b.get('category'),
+                    'Copies': b.get('copies', 1)
+                })
+    
+    # 2. Rehydrate Users
+    users = list(db.users.find({}, {'_id': 0}))
+    if users:
+        with open(USERS_CSV, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['UserID', 'Name', 'Email', 'Type'])
+            writer.writeheader()
+            for u in users:
+                writer.writerow({
+                    'UserID': u.get('userID'),
+                    'Name': u.get('name'),
+                    'Email': u.get('email'),
+                    'Type': u.get('type', 'STUDENT')
+                })
+
+    # 3. Rehydrate Transactions
+    txns = list(db.transactions.find({}, {'_id': 0}))
+    if txns:
+        with open(TRANS_CSV, 'w', encoding='utf-8', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['TID', 'UID', 'BID', 'CID', 'Type', 'Timestamp'])
+            writer.writeheader()
+            for t in txns:
+                writer.writerow({
+                    'TID': t.get('tid', 'TXN_INF'),
+                    'UID': t.get('userID'),
+                    'BID': t.get('isbn'),
+                    'CID': t.get('copyID', ''),
+                    'Type': t.get('type'),
+                    'Timestamp': int(t.get('timestamp', 0))
+                })
+    else:
+        # Create empty if not exists to avoid backend crash
+        with open(TRANS_CSV, 'w', encoding='utf-8', newline='') as f:
+            f.write("TID,UID,BID,CID,Type,Timestamp\n")
+
+def initial_migration():
+    """One-time migration from local CSV to MongoDB if DB is empty"""
+    if not db: return
+    
+    if db.books.count_documents({}) == 0:
+        local_books_path = os.path.abspath(os.path.join(BASE_DIR, '..', 'data', 'books.csv'))
+        if os.path.exists(local_books_path):
+            print("🚀 Migrating local books to MongoDB...")
+            with open(local_books_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                books_to_add = []
+                for row in reader:
+                    books_to_add.append({
+                        'isbn': row['ISBN'],
+                        'title': row['Title'],
+                        'author': row['Author'],
+                        'category': row['Category'],
+                        'copies': int(row['Copies'])
+                    })
+                if books_to_add:
+                    db.books.insert_many(books_to_add)
+
+    if db.users.count_documents({}) == 0:
+        local_users_path = os.path.abspath(os.path.join(BASE_DIR, '..', 'data', 'users.csv'))
+        if os.path.exists(local_users_path):
+            print("🚀 Migrating local users to MongoDB...")
+            with open(local_users_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                users_to_add = []
+                for row in reader:
+                    users_to_add.append({
+                        'userID': row['UserID'],
+                        'name': row['Name'],
+                        'email': row['Email'],
+                        'type': row['Type']
+                    })
+                if users_to_add:
+                    db.users.insert_many(users_to_add)
 
 # ================= MOCK BACKEND =================
 
@@ -68,17 +193,20 @@ def start_backend():
         return
 
     if BACKEND_PROCESS is None:
-        # Run backend with CWD set to project root so it can find "data/" folder
+        # Rehydrate data from MongoDB on startup
+        initial_migration()
+        rehydrate_from_mongodb()
+
+        # Run backend with CWD set to project root so it can find files relative to it
         cwd_path = os.path.abspath(os.path.join(BASE_DIR, '..'))
-        
-        # Check if we are running in a read-only environment (like Vercel)
-        # and ensure path exists.
         if not os.path.exists(cwd_path):
              cwd_path = os.getcwd()
 
         try:
+            # Pass custom data paths to C++ backend
+            args = [BACKEND_EXECUTABLE, BOOKS_CSV, USERS_CSV, TRANS_CSV]
             BACKEND_PROCESS = subprocess.Popen(
-                [BACKEND_EXECUTABLE],
+                args,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -86,7 +214,7 @@ def start_backend():
                 bufsize=1,
                 cwd=cwd_path
             )
-            # Consume "Library System Ready" banner so first readline() gets actual JSON
+            # Consume "Library System Ready" banner
             _ = BACKEND_PROCESS.stdout.readline()
         except Exception as e:
             print(f"FAILED TO START BACKEND: {e}")
@@ -181,6 +309,14 @@ def login():
         "name": name,
         "type": user_type
     })
+
+    # Sync with MongoDB
+    if db:
+        db.users.update_one(
+            {"userID": user_id},
+            {"$set": {"name": name, "email": f"{user_id}@library.edu", "type": user_type.upper()}},
+            upsert=True
+        )
     
     return jsonify({"success": True, "message": "Login successful"})
 
@@ -219,29 +355,68 @@ def api_search():
 @app.route('/api/issue', methods=['POST'])
 def api_issue():
     data = request.get_json()
-    return jsonify(send_with_retry({
+    isbn = data.get("isbn")
+    response = send_with_retry({
         "action": "issue",
         "userID": session['user_id'],
-        "isbn": data.get("isbn")
-    }))
+        "isbn": isbn
+    })
+    
+    # Sync with MongoDB
+    if response.get("success") and db:
+        db.books.update_one({"isbn": isbn}, {"$inc": {"copies": -1}})
+        db.transactions.insert_one({
+            "tid": f"TXN_{int(time.time())}",
+            "userID": session['user_id'],
+            "isbn": isbn,
+            "type": "ISSUE",
+            "timestamp": int(time.time())
+        })
+    
+    return jsonify(response)
 
 @app.route('/api/return', methods=['POST'])
 def api_return():
     data = request.get_json()
-    return jsonify(send_with_retry({
+    isbn = data.get("isbn")
+    response = send_with_retry({
         "action": "return",
         "userID": session['user_id'],
-        "isbn": data.get("isbn")
-    }))
+        "isbn": isbn
+    })
+    
+    # Sync with MongoDB
+    if response.get("success") and db:
+        db.books.update_one({"isbn": isbn}, {"$inc": {"copies": 1}})
+        db.transactions.insert_one({
+            "tid": f"TXN_{int(time.time())}",
+            "userID": session['user_id'],
+            "isbn": isbn,
+            "type": "RETURN",
+            "timestamp": int(time.time())
+        })
+        
+    return jsonify(response)
 
 @app.route('/api/reserve', methods=['POST'])
 def api_reserve():
     data = request.get_json()
-    return jsonify(send_with_retry({
+    isbn = data.get("isbn")
+    response = send_with_retry({
         "action": "reserve",
         "userID": session['user_id'],
-        "isbn": data.get("isbn")
-    }))
+        "isbn": isbn
+    })
+    
+    # Sync with MongoDB
+    if response.get("success") and db:
+        db.reservations.insert_one({
+            "userID": session['user_id'],
+            "isbn": isbn,
+            "timestamp": timedelta(0).total_seconds()
+        })
+        
+    return jsonify(response)
 
 @app.route('/api/recommendations')
 def api_recommendations():

@@ -420,3 +420,7 @@ json LibraryEngine::getUserProfile(const std::string& userID) {
     res["success"] = true;
     return res;
 }
+
+void LibraryEngine::addTransaction(Transaction* t) {
+    if (t) transactionHistory.push(t);
+}

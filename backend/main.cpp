@@ -91,6 +91,38 @@ void loadUsersFromCSV(const std::string& path) {
     }
 }
 
+void loadTransactionsFromCSV(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) return;
+
+    std::string line;
+    bool header = true;
+
+    while (std::getline(file, line)) {
+        if (header) {
+            header = false;
+            continue;
+        }
+        if (line.empty()) continue;
+
+        auto fields = parseCSVLine(line);
+        if (fields.size() < 6) continue;
+
+        std::string tid = fields[0];
+        std::string uid = fields[1];
+        std::string bid = fields[2];
+        std::string cid = fields[3];
+        std::string typeStr = fields[4];
+        long long ts = 0;
+        try { ts = std::stoll(fields[5]); } catch (...) {}
+
+        TransactionType type = (typeStr == "RETURN") ? TransactionType::RETURN : TransactionType::ISSUE;
+        Transaction* t = new Transaction(tid, uid, bid, cid, type);
+        t->timestamp = ts;
+        engine->addTransaction(t);
+    }
+}
+
 void saveUserToCSV(const std::string& path, const std::string& uid, const std::string& name, const std::string& typeStr) {
     std::ofstream file(path, std::ios::app);
     if (!file.is_open()) return;
@@ -207,11 +239,22 @@ json handlePersonalizedRecommend(const json& req) {
 
 /* ---------------- MAIN ---------------- */
 
-int main() {
+int main(int argc, char* argv[]) {
     engine = new LibraryEngine();
 
-    loadBooksFromCSV("data/books.csv");
-    loadUsersFromCSV("data/users.csv");
+    std::string booksPath = "data/books.csv";
+    std::string usersPath = "data/users.csv";
+    std::string transPath = "data/transactions.csv";
+
+    if (argc >= 4) {
+        booksPath = argv[1];
+        usersPath = argv[2];
+        transPath = argv[3];
+    }
+
+    loadBooksFromCSV(booksPath);
+    loadUsersFromCSV(usersPath);
+    loadTransactionsFromCSV(transPath);
     engine->buildSearchIndices();
     engine->buildRecommendationGraph();
 
@@ -248,11 +291,11 @@ int main() {
                 if (!engine->getUser(uid)) {
                     engine->addUser(new User(uid, fname, uid + "@library.edu", utype));
                     
-                    // Persist to CSV
+                    // Persist to CSV (if path is provided/known)
                     std::string saveType = "STUDENT";
                     if (utype == UserType::FACULTY) saveType = "FACULTY";
                     else if (utype == UserType::FINAL_YEAR_STUDENT) saveType = "FINAL_YEAR_STUDENT";
-                    saveUserToCSV("data/users.csv", uid, fname, saveType);
+                    saveUserToCSV(usersPath, uid, fname, saveType);
                 }
                 response = { {"success", true}, {"message", "User added/verified"} };
             }

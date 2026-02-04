@@ -77,6 +77,9 @@ public:
     // Profile
     json getUserProfile(const std::string& userID);
 
+    // Rehydration
+    void addTransaction(Transaction* t);
+
     // Setup
     void buildSearchIndices();
     void buildRecommendationGraph();
