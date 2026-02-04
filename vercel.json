@@ -1,26 +1,13 @@
 {
     "version": 2,
-    "builds": [
+    "rewrites": [
         {
-            "src": "package.json",
-            "use": "@vercel/static-build",
-            "config": {
-                "distDir": "public"
-            }
+            "source": "/static/(.*)",
+            "destination": "/flask_app/static/$1"
         },
         {
-            "src": "flask_app/app.py",
-            "use": "@vercel/python"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/static/(.*)",
-            "dest": "/flask_app/static/$1"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/flask_app/app.py"
+            "source": "/(.*)",
+            "destination": "/flask_app/app.py"
         }
     ]
 }

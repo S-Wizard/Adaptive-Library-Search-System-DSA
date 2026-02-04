@@ -31,40 +31,57 @@ else:
 # ===== PATH FIX (VERY IMPORTANT) =====
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Temp Data Path for Vercel/Linux
-# We use /tmp because it's the only writable directory on Vercel
 if os.name == 'nt':
     DATA_DIR = os.path.abspath(os.path.join(BASE_DIR, '..', 'data'))
+    BACKEND_EXECUTABLE = os.path.abspath(os.path.join(BASE_DIR, '..', 'backend', 'library.exe'))
 else:
-    DATA_DIR = '/tmp/libsearch_data'
+    # On Vercel, we must use /tmp for both the binary and data
+    DATA_DIR = '/tmp/libsearch'
     os.makedirs(DATA_DIR, exist_ok=True)
+    BACKEND_EXECUTABLE = os.path.join(DATA_DIR, 'library')
 
 BOOKS_CSV = os.path.join(DATA_DIR, 'books.csv')
 USERS_CSV = os.path.join(DATA_DIR, 'users.csv')
 TRANS_CSV = os.path.join(DATA_DIR, 'transactions.csv')
 
-# On Vercel (Linux), the executable won't have .exe extension
-if os.name == 'nt':
-    BACKEND_EXECUTABLE = os.path.abspath(os.path.join(BASE_DIR, '..', 'backend', 'library.exe'))
-else:
-    # Try multiple possible locations for Linux to find the binary
-    possible_paths = [
-        os.path.abspath(os.path.join(BASE_DIR, '..', 'backend', 'library')), # Main repo structure
-        os.path.join(os.getcwd(), 'backend', 'library'),                    # Vercel current dir
-        os.path.join(os.getcwd(), 'library')                                # Root dir
-    ]
-    BACKEND_EXECUTABLE = None
-    for path in possible_paths:
-        if os.path.exists(path):
-            BACKEND_EXECUTABLE = path
-            break
-    
-    if not BACKEND_EXECUTABLE:
-        BACKEND_EXECUTABLE = possible_paths[0] # Default to first path if not found
-
 BACKEND_PROCESS = None
 USE_MOCK_BACKEND = False
 MOCK_BOOKS = []
+
+# ================= SELF-COMPILATION =================
+
+def compile_backend():
+    """Compile the C++ backend on-demand in the Vercel/Linux environment."""
+    if os.name == 'nt': return # Already compiled on Windows
+    
+    if os.path.exists(BACKEND_EXECUTABLE):
+        return
+
+    print("🛠️ Compiling C++ Backend in Vercel environment...")
+    src_dir = os.path.abspath(os.path.join(BASE_DIR, '..', 'backend'))
+    
+    cmd = [
+        'g++', '-std=c++17',
+        f'-I{src_dir}', 
+        os.path.join(src_dir, 'main.cpp'),
+        os.path.join(src_dir, 'library_engine.cpp'),
+        os.path.join(src_dir, 'avl_tree.cpp'),
+        os.path.join(src_dir, 'trie.cpp'),
+        os.path.join(src_dir, 'recommendation_graph.cpp'),
+        '-o', BACKEND_EXECUTABLE
+    ]
+    
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            print("✅ Compilation Successful!")
+            os.chmod(BACKEND_EXECUTABLE, 0o755)
+        else:
+            print(f"❌ COMPILATION FAILED: {result.stderr}")
+            raise Exception(f"Compilation failed: {result.stderr}")
+    except Exception as e:
+        print(f"❌ COMPILATION ERROR: {e}")
+        raise
 
 # ================= MIGRATION & REHYDRATION =================
 
@@ -189,19 +206,23 @@ def load_mock_books():
 def start_backend():
     global BACKEND_PROCESS, USE_MOCK_BACKEND
 
-    if not os.path.exists(BACKEND_EXECUTABLE):
-        print("⚠ Backend executable not found. Using mock backend.")
-        USE_MOCK_BACKEND = True
-        return
-
     if BACKEND_PROCESS is None:
-        # Rehydrate data from MongoDB on startup
+        # 1. Compile if missing (Vercel)
+        # 2. Rehydrate data from MongoDB on startup
         try:
+            compile_backend()
             initial_migration()
             rehydrate_from_mongodb()
         except Exception as e:
-            print(f"FAILED TO REHYDRATE: {e}")
+            print(f"FAILED TO INITIALIZE: {e}")
             USE_MOCK_BACKEND = True
+
+        if not os.path.exists(BACKEND_EXECUTABLE) and not USE_MOCK_BACKEND:
+            print("⚠ Backend executable not found. Using mock backend.")
+            USE_MOCK_BACKEND = True
+
+        if USE_MOCK_BACKEND:
+            return
 
         # Run backend with CWD set to project root so it can find files relative to it
         cwd_path = os.path.abspath(os.path.join(BASE_DIR, '..'))
